@@ -29,9 +29,11 @@ DS_API void DSFree(void* ptr) {
 }
 
 DS_API void DSFreeArray(void** ptrArray) {
-	for (void** ptr = ptrArray; *ptr != nullptr; ptr++) {
+	if (!ptrArray) {
+		return;
+	}
+	for (void** ptr = ptrArray; *ptr != nullptr; ++ptr) {
 		DSFree(*ptr);
 	}
 	DSFree(ptrArray);
-}
 }
