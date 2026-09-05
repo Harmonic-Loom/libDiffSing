@@ -95,16 +95,16 @@ on:
 env:
   # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
   # workflow_dispatch 或 workflow_call 时读取 inputs，其他触发方式使用此处默认值
-  enable-android-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-arm64 || 'false'}}
-  enable-android-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-x64 || 'false'}}
-  enable-ios-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-ios-arm64 || 'false'}}
-  enable-iossimu-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-iossimu-arm64 || 'false'}}
-  enable-windows-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-x64 || 'true'}}
-  enable-windows-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-arm64 || 'true'}}
-  enable-macos-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-arm64 || 'true'}}
-  enable-macos-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-x64 || 'true'}}
-  enable-linux-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-x64 || 'true'}}
-  enable-linux-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-arm64 || 'true'}}
+  enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-arm64) || 'false'}}
+  enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-x64) || 'false'}}
+  enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-ios-arm64) || 'false'}}
+  enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-iossimu-arm64) || 'false'}}
+  enable-windows-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-x64) || 'true'}}
+  enable-windows-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-arm64) || 'true'}}
+  enable-macos-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-arm64) || 'true'}}
+  enable-macos-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-x64) || 'true'}}
+  enable-linux-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-x64) || 'true'}}
+  enable-linux-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-arm64) || 'true'}}
 
 permissions:
   contents: read
@@ -122,16 +122,16 @@ jobs:
     secrets:
       GH_PACKAGES_TOKEN: ${{secrets.GH_PACKAGES_TOKEN}}
     with:
-      enable-android-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-arm64 || 'false'}}
-      enable-android-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-x64 || 'false'}}
-      enable-ios-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-ios-arm64 || 'false'}}
-      enable-iossimu-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-iossimu-arm64 || 'false'}}
-      enable-windows-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-x64 || 'true'}}
-      enable-windows-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-arm64 || 'true'}}
-      enable-macos-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-arm64 || 'true'}}
-      enable-macos-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-x64 || 'true'}}
-      enable-linux-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-x64 || 'true'}}
-      enable-linux-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-arm64 || 'true'}}
+      enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && inputs.enable-android-arm64}}
+      enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && inputs.enable-android-x64}}
+      enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && inputs.enable-ios-arm64}}
+      enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && inputs.enable-iossimu-arm64}}
+      enable-windows-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-windows-x64}}
+      enable-windows-arm64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-windows-arm64}}
+      enable-macos-arm64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-macos-arm64}}
+      enable-macos-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-macos-x64}}
+      enable-linux-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-linux-x64}}
+      enable-linux-arm64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-linux-arm64}}
 
     permissions:
       id-token: write
