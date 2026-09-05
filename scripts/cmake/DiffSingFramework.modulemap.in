@@ -1,0 +1,5 @@
+framework module @DIFFSING_FRAMEWORK_MODULE_NAME@ {
+	umbrella header "libDiffSing.h"
+	export *
+	module * { export * }
+}

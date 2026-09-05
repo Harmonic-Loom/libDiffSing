@@ -1,0 +1,31 @@
+Checks: >-
+  clang-analyzer-*,bugprone-*,performance-*,portability-*,readability-*,
+  modernize-*,-modernize-use-trailing-return-type,
+  misc-*,cppcoreguidelines-*,-cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  hicpp-*,-hicpp-no-array-decay
+
+WarningsAsErrors: ''
+
+HeaderFilterRegex: '.*'
+AnalyzeTemporaryDtors: false
+FormatStyle: file
+User: ''
+
+CheckOptions:
+  - key:             modernize-use-nullptr.NullMacros
+    value:           'NULL'
+  - key:             modernize-use-nullptr.NullptrTMacro
+    value:           'nullptr_t'
+  - key:             readability-identifier-naming.VariableCase
+    value:           lower_case
+  - key:             readability-identifier-naming.FunctionCase
+    value:           CamelCase
+  - key:             modernize-loop-convert.MaxCopySize
+    value:           '16'
+  - key:             cppcoreguidelines-narrowing-conversions.WarnOnIntegerTruncation
+    value:           'true'
+  - key:             cppcoreguidelines-narrowing-conversions.WarnOnIntegerOverflow
+    value:           'true'
+  - key:             cppcoreguidelines-narrowing-conversions.WarnOnFloatingPointNarrowingConversion
+    value:           'true'

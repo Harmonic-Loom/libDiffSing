@@ -1,0 +1,447 @@
+name: Package and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      enable-android-arm64:
+        description: '启用 Android ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-android-x64:
+        description: '启用 Android x64 构建和打包'
+        type: boolean
+        default: false
+      enable-ios-arm64:
+        description: '启用 iOS ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-iossimu-arm64:
+        description: '启用 iOS Simulator ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-windows-x64:
+        description: '启用 Windows x64 构建和打包'
+        type: boolean
+        default: true
+      enable-windows-arm64:
+        description: '启用 Windows ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-arm64:
+        description: '启用 macOS ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-x64:
+        description: '启用 macOS x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-x64:
+        description: '启用 Linux x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-arm64:
+        description: '启用 Linux ARM64 构建和打包'
+        type: boolean
+        default: true
+  workflow_call:
+    secrets:
+      GH_PACKAGES_TOKEN:
+        required: true
+    inputs:
+      enable-android-arm64:
+        description: '启用 Android ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-android-x64:
+        description: '启用 Android x64 构建和打包'
+        type: boolean
+        default: false
+      enable-ios-arm64:
+        description: '启用 iOS ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-iossimu-arm64:
+        description: '启用 iOS Simulator ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-windows-x64:
+        description: '启用 Windows x64 构建和打包'
+        type: boolean
+        default: true
+      enable-windows-arm64:
+        description: '启用 Windows ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-arm64:
+        description: '启用 macOS ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-x64:
+        description: '启用 macOS x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-x64:
+        description: '启用 Linux x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-arm64:
+        description: '启用 Linux ARM64 构建和打包'
+        type: boolean
+        default: true
+
+env:
+  # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
+  # workflow_dispatch 或 workflow_call 时读取 inputs，其他触发方式使用此处默认值
+  enable-android-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-arm64 || 'false'}}
+  enable-android-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-x64 || 'false'}}
+  enable-ios-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-ios-arm64 || 'false'}}
+  enable-iossimu-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-iossimu-arm64 || 'false'}}
+  enable-windows-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-x64 || 'true'}}
+  enable-windows-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-arm64 || 'true'}}
+  enable-macos-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-arm64 || 'true'}}
+  enable-macos-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-x64 || 'true'}}
+  enable-linux-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-x64 || 'true'}}
+  enable-linux-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-arm64 || 'true'}}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  call-build:
+    name: Build Artifacts
+    uses: ./.github/workflows/build.yml
+    secrets:
+      GH_PACKAGES_TOKEN: ${{secrets.GH_PACKAGES_TOKEN}}
+    with:
+      enable-android-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-arm64 || 'false'}}
+      enable-android-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-x64 || 'false'}}
+      enable-ios-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-ios-arm64 || 'false'}}
+      enable-iossimu-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-iossimu-arm64 || 'false'}}
+      enable-windows-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-x64 || 'true'}}
+      enable-windows-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-arm64 || 'true'}}
+      enable-macos-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-arm64 || 'true'}}
+      enable-macos-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-x64 || 'true'}}
+      enable-linux-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-x64 || 'true'}}
+      enable-linux-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-arm64 || 'true'}}
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+  # 计算各下游 job 需要的 matrix JSON，过滤掉被禁用的平台/架构组合
+  # 因为 GitHub Actions 的 job 级 if 条件不支持 matrix 上下文，只能通过此方式实现动态过滤
+  setup-matrix:
+    runs-on: ubuntu-latest
+    needs: [call-build]
+    outputs:
+      package-matrix: ${{steps.gen-package.outputs.package-matrix}}
+      release-matrix: ${{steps.gen-release.outputs.release-matrix}}
+
+    steps:
+      - name: Clean Workspace
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: |
+          Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate package matrix
+        id: gen-package
+        shell: pwsh
+        run: |
+          $json = ./scripts/ci/matrix/genPackageMatrix.ps1 `
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+          "package-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Generate release matrix
+        id: gen-release
+        shell: pwsh
+        run: |
+          $json = ./scripts/ci/matrix/genReleaseMatrix.ps1 `
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+          "release-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+  package:
+    name: Build Package
+    needs: [setup-matrix]
+    runs-on: ${{matrix.os}}
+
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJSON(needs.setup-matrix.outputs.package-matrix)}}
+
+    steps:
+      - name: Clean Workspace
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: |
+          Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Get Short SHA
+        uses: benjlevesque/short-sha@v3.0
+        id: short-sha
+        with:
+          length: 7
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{github.workspace}}/artifacts
+
+      - name: Match Key Artifacts
+        id: match-artifacts
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: |
+          $output_paths = (./scripts/ci/package/matchFolder.ps1 "${{github.workspace}}/artifacts" "LibDiffSing-${{matrix.artifact-match}}-${{matrix.build-type}}-${{steps.short-sha.outputs.sha}}") | Out-String
+          $outputString = "output_paths=$output_paths"
+          $outputString | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Found output files: $output_paths"
+
+      - name: Build iOS XCode Framework
+        if: matrix.target == 'iOS'
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: ./scripts/ci/package/buildXcframework.ps1 "${{steps.match-artifacts.outputs.output_paths}}" "./package/LibDiffSing-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}.xcframework"
+        
+      - name: Copy iOS Test Data
+        if: matrix.target == 'iOS'
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: ./scripts/ci/package/copyData.ps1 "${{steps.match-artifacts.outputs.output_paths}}" "./package"
+
+      - name: Copy No-iOS Target Package
+        if: matrix.target != 'iOS'
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: ./scripts/ci/package/copyArtifactContents.ps1 "${{steps.match-artifacts.outputs.output_paths}}" "./package"
+
+      - name: Upload Package Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibDiffSingPackage-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}-${{steps.short-sha.outputs.sha}}
+          path: |
+            package/**
+          compression-level: 9
+
+  create-release:
+    name: Create Release
+    needs: [package]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Clean Workspace
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: |
+          Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Generate Release Notes
+        id: notes
+        uses: RedCrafter07/release-notes-action@v1.0.0
+        with:
+          tag-name: ${{github.ref}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          branch: 'main'
+
+      - name: Create Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          RELEASE_NOTES: ${{steps.notes.outputs.release-notes}}
+        run: |
+          printf '%s' "$RELEASE_NOTES" > notes.md
+          gh release create "${{github.ref_name}}" \
+            --repo "${{github.repository}}" \
+            --title "LibDiffSing ${{github.ref_name}}" \
+            --notes-file notes.md
+
+  release:
+    name: Upload Release
+    needs: [setup-matrix, create-release]
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJSON(needs.setup-matrix.outputs.release-matrix)}}
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Clean Workspace
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: |
+          Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Get Short SHA
+        uses: benjlevesque/short-sha@v3.0
+        id: short-sha
+        with:
+          length: 7
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LibDiffSingPackage-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}-${{steps.short-sha.outputs.sha}}
+
+      - name: Package - Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: ${{github.workspace}}
+        run: Compress-Archive -Path .\* -DestinationPath "LibDiffSing-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}-${{github.ref_name}}.zip"
+
+      - name: Package - iOS XCFramework
+        if: runner.os == 'macOS' && matrix.target == 'iOS'
+        shell: bash
+        working-directory: ${{github.workspace}}
+        run: |
+          mv "LibDiffSing-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}.xcframework" LibDiffSing.xcframework
+          ditto -c -k --sequesterRsrc --keepParent \
+            LibDiffSing.xcframework \
+            "LibDiffSing-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}-${{github.ref_name}}.xcframework.zip"
+
+      - name: Package - MacOS
+        if: runner.os == 'macOS' && matrix.target != 'iOS'
+        shell: bash
+        working-directory: ${{github.workspace}}
+        run: |
+          asset="LibDiffSing-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}-${{github.ref_name}}.zip"
+          ditto -c -k --sequesterRsrc . "/tmp/$asset"
+          mv "/tmp/$asset" .
+
+      - name: Package - Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        working-directory: ${{github.workspace}}
+        run: tar -zcvf "LibDiffSing-${{matrix.target}}-${{matrix.arch}}-${{matrix.build-type}}-${{github.ref_name}}.tar.gz" ./*
+
+      - name: Generate SHA-256 Checksum
+        id: checksum
+        shell: pwsh
+        working-directory: ${{github.workspace}}
+        run: |
+          $asset = Get-ChildItem -File | Where-Object { $_.Name -match '\.(zip|tar\.gz)$' } | Select-Object -First 1
+          $checksumAsset = "$($asset.Name).sha256"
+          $checksum = (Get-FileHash -Algorithm SHA256 $asset.FullName).Hash.ToLowerInvariant()
+          "$checksum  $($asset.Name)" | Set-Content -NoNewline $checksumAsset
+          "asset=$($asset.Name)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "checksum_asset=$checksumAsset" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Upload Release Asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          gh release upload "${{github.ref_name}}" \
+            "${{steps.checksum.outputs.asset}}" \
+            "${{steps.checksum.outputs.checksum_asset}}" \
+            --repo "${{github.repository}}"
+
+  release-docs:
+    name: Upload Documentation
+    needs: [create-release]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Clean Workspace
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: |
+          Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Get Short SHA
+        uses: benjlevesque/short-sha@v3.0
+        id: short-sha
+        with:
+          length: 7
+
+      - name: Download Documentation Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LibDiffSing-docs-${{steps.short-sha.outputs.sha}}
+          path: docs
+
+      - name: Package Documentation
+        working-directory: ${{github.workspace}}
+        shell: bash
+        run: tar -zcvf "LibDiffSing-docs-${{github.ref_name}}.tar.gz" -C docs .
+
+      - name: Generate Documentation Checksum
+        working-directory: ${{github.workspace}}
+        shell: bash
+        run: sha256sum "LibDiffSing-docs-${{github.ref_name}}.tar.gz" > "LibDiffSing-docs-${{github.ref_name}}.tar.gz.sha256"
+
+      - name: Upload Documentation to Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          gh release upload "${{github.ref_name}}" \
+            "LibDiffSing-docs-${{github.ref_name}}.tar.gz" \
+            "LibDiffSing-docs-${{github.ref_name}}.tar.gz.sha256" \
+            --repo "${{github.repository}}"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Page Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

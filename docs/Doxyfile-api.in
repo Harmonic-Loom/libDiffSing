@@ -1,0 +1,115 @@
+# Doxyfile-api.in - libDiffSing Doxygen 配置模板
+# 由 CMake 的 configure_file() 处理后生成实际 Doxyfile
+
+#---------------------------------------------------------------------------
+# 项目信息
+#---------------------------------------------------------------------------
+PROJECT_NAME           = "libDiffSing"
+PROJECT_NUMBER         = @PROJECT_VERSION@
+PROJECT_BRIEF          = "libDiffSing Library C API"
+PROJECT_LOGO           =
+OUTPUT_DIRECTORY       = @DOXYGEN_OUTPUT_DIR@
+OUTPUT_LANGUAGE        = Chinese
+
+#---------------------------------------------------------------------------
+# 输入配置
+#---------------------------------------------------------------------------
+INPUT                  = @CMAKE_SOURCE_DIR@/include \
+                         @CMAKE_SOURCE_DIR@/docs/dox-api \
+                         @CMAKE_SOURCE_DIR@/docs/md
+FILE_PATTERNS          = *.h *.dox *.md
+RECURSIVE              = NO
+INPUT_ENCODING         = UTF-8
+STRIP_FROM_PATH        = @CMAKE_SOURCE_DIR@/
+STRIP_FROM_INC_PATH    = @CMAKE_SOURCE_DIR@/include/
+EXCLUDE_PATTERNS       = */jni/*
+
+#---------------------------------------------------------------------------
+# 提取配置
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+OPTIMIZE_OUTPUT_FOR_C  = YES
+TYPEDEF_HIDES_STRUCT   = YES
+MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = YES
+BUILTIN_STL_SUPPORT    = NO
+
+#---------------------------------------------------------------------------
+# 排序与布局
+#---------------------------------------------------------------------------
+SORT_MEMBER_DOCS       = NO
+SORT_BRIEF_DOCS        = NO
+SORT_GROUP_NAMES       = NO
+
+#---------------------------------------------------------------------------
+# 源码浏览
+#---------------------------------------------------------------------------
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+VERBATIM_HEADERS       = YES
+
+#---------------------------------------------------------------------------
+# 预处理
+#---------------------------------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = NH_API= \
+                         DOXYGEN \
+                         __cplusplus
+
+#---------------------------------------------------------------------------
+# 输出格式
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT            = .
+HTML_COLORSTYLE        = LIGHT
+HTML_TIMESTAMP         = YES
+HTML_DYNAMIC_MENUS     = YES
+HTML_DYNAMIC_SECTIONS  = YES
+HTML_EXTRA_STYLESHEET  = @DOXYGEN_AWESOME_CSS_DIR@/doxygen-awesome.css \
+                         @DOXYGEN_AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only.css \
+                         @DOXYGEN_AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only-darkmode-toggle.css
+HTML_EXTRA_FILES       = @DOXYGEN_AWESOME_CSS_DIR@/doxygen-awesome-darkmode-toggle.js \
+                         @DOXYGEN_AWESOME_CSS_DIR@/doxygen-awesome-interactive-toc.js \
+                         @DOXYGEN_AWESOME_CSS_DIR@/doxygen-awesome-paragraph-link.js \
+                         @CMAKE_SOURCE_DIR@/docs/doxygen-awesome-init.js
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = NO
+
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_XML           = NO
+GENERATE_MAN           = NO
+
+#---------------------------------------------------------------------------
+# 图表
+#---------------------------------------------------------------------------
+HAVE_DOT               = @DOXYGEN_HAVE_DOT@
+DOT_PATH               = @DOT_PATH@
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+DOT_MULTI_TARGETS      = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+COLLABORATION_GRAPH    = NO
+DOT_GRAPH_MAX_NODES    = 100
+
+#---------------------------------------------------------------------------
+# Tag 文件（跨文档引用）
+#---------------------------------------------------------------------------
+GENERATE_TAGFILE       = @DOXYGEN_OUTPUT_DIR@/api.tag
+
+#---------------------------------------------------------------------------
+# 警告
+#---------------------------------------------------------------------------
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_FORMAT            = "$file:$line: $text"
+WARN_AS_ERROR          = NO
