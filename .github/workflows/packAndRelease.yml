@@ -300,6 +300,7 @@ jobs:
             --repo "${{github.repository}}" \
             --title "LibDiffSing ${{github.ref_name}}" \
             --notes-file notes.md
+            --draft
 
   release:
     name: Upload Release
@@ -445,3 +446,23 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  publish-release:
+    name: Publish Release
+    needs:
+      - release
+      - release-docs
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Publish Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --draft=false
