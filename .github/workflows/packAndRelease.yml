@@ -299,7 +299,7 @@ jobs:
           gh release create "${{github.ref_name}}" \
             --repo "${{github.repository}}" \
             --title "LibDiffSing ${{github.ref_name}}" \
-            --notes-file notes.md
+            --notes-file notes.md \
             --draft
 
   release:
@@ -449,9 +449,7 @@ jobs:
 
   publish-release:
     name: Publish Release
-    needs:
-      - release
-      - release-docs
+    needs: [release, release-docs]
     runs-on: ubuntu-latest
 
     permissions:
