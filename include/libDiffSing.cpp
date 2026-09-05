@@ -37,3 +37,4 @@ DS_API void DSFreeArray(void** ptrArray) {
 	}
 	DSFree(ptrArray);
 }
+}
