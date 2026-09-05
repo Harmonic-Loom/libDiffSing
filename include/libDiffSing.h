@@ -5,8 +5,10 @@
  * @brief libDiffSing 公共 C API 头文件.
  */
 
-#include "Platforms.h"
+#include <stddef.h>
+#include <stdbool.h>
 
+#include "Platforms.h"
 #if defined __cplusplus
 
 extern "C" {
