@@ -345,31 +345,31 @@ endforeach(TEST_ITEM ${TEST_SRC})
 endif(NOT IOS)
 
 # Doxygen 文档生成
-#include(scripts/cmake/FetchDoxygen.cmake)
-#if(DOXYGEN_FOUND)
-#	include(scripts/cmake/FetchDoxygenAwesome.cmake)
-#	include(scripts/cmake/FetchGraphviz.cmake)
-#	if(GRAPHVIZ_FOUND)
-#		set(DOXYGEN_HAVE_DOT "YES")
-#	else()
-#		set(DOXYGEN_HAVE_DOT "NO")
-#		set(DOT_PATH "")
-#	endif()
-#	set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/docs")
-#	configure_file(
-#		"${CMAKE_SOURCE_DIR}/docs/Doxyfile-api.in"
-#		"${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-api"
-#		@ONLY)
-#	configure_file(
-#		"${CMAKE_SOURCE_DIR}/docs/Doxyfile-internal.in"
-#		"${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-internal"
-#		@ONLY)
-#	add_custom_target(docs
-#		COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-api"
-#		COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-internal"
-#		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#		COMMENT "Generating API and internal documentation with Doxygen"
-#		VERBATIM)
-#else()
-#	message(STATUS "Doxygen not available, 'docs' target will not be created")
-#endif()
+include(scripts/cmake/FetchDoxygen.cmake)
+if(DOXYGEN_FOUND)
+	include(scripts/cmake/FetchDoxygenAwesome.cmake)
+	include(scripts/cmake/FetchGraphviz.cmake)
+	if(GRAPHVIZ_FOUND)
+		set(DOXYGEN_HAVE_DOT "YES")
+	else()
+		set(DOXYGEN_HAVE_DOT "NO")
+		set(DOT_PATH "")
+	endif()
+	set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/docs")
+	configure_file(
+		"${CMAKE_SOURCE_DIR}/docs/Doxyfile-api.in"
+		"${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-api"
+		@ONLY)
+	configure_file(
+		"${CMAKE_SOURCE_DIR}/docs/Doxyfile-internal.in"
+		"${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-internal"
+		@ONLY)
+	add_custom_target(docs
+		COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-api"
+		COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-internal"
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		COMMENT "Generating API and internal documentation with Doxygen"
+		VERBATIM)
+else()
+	message(STATUS "Doxygen not available, 'docs' target will not be created")
+endif()
