@@ -212,7 +212,7 @@
 #if defined(DOXYGEN)
 #define DS_Call
 #elif DS_MSVC || DS_CLANG_CL
-#define DS_Call _fastcall
+#define DS_Call __fastcall
 #else
 #define DS_Call
 #endif
