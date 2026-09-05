@@ -1,0 +1,52 @@
+/**
+ * @mainpage libDiffSing 内部实现文档
+ *
+ * @note 另请参阅：<a href="../index.html">公共 API 文档 (API Documentation)</a>
+ *
+ * @section intro_sec 简介
+ *
+ * 本文档描述 libDiffSing 的内部结构与实现要点，面向希望了解运行时架构、
+ * 模块划分与数据流的开发者。公共对外接口请参阅 API 文档（docs/dox-api）。
+ *
+ * @section arch_sec 模块概览
+ *
+ * libDiffSing 核心由若干模块组成，主要职责划分如下：
+ *
+  * | 目录/文件 | 职责 |
+ * |-----------|------|
+ * | include/ | 对外 C 头文件（libDiffSing.h、Platforms.h 等） |
+ * | src/ | 底层实现与公共工具代码（实现细节在内部维护，文档此处不详述） |
+ * | tests/ | 单元 / 集成测试（CMake 测试目标） |
+ * | CMakeLists.txt | 构建配置、目标与安装规则 |
+ *
+ * @section dataflow_sec 数据流
+ *
+  * 内部调用链保持简单的分层关系（此处不展开 src 子模块的实现细节）：
+ *
+ * @code
+ * 应用代码 (C API 调用)
+ *      │
+ *      ▼
+ * C 接口层 (include/libDiffSing.h)
+ *      │
+ *      ▼
+ * 运行时核心（初始化、全局状态与运行时服务）
+ *      │
+ *      ▼
+ * 平台适配与工具（导出宏、调用约定、平台相关适配层）
+ * @endcode
+ *
+ * @section build_sec 构建与开发注意事项
+ *
+ * 项目使用 CMake（见顶层 CMakeLists.txt），支持使用 Ninja 生成器和 MSVC 工具链。
+ * 测试目标位于 tests/，通过 ctest / CMake 测试目标运行。
+ *
+ * 开发时请注意：
+ * - 保持 include/ 中对外暴露的 API 稳定，任何 ABI 变化需在版本号与导出宏上做好区分。
+ * - DSMalloc/DSFree 为跨模块内存传递提供统一接口，避免直接使用 malloc/free 在跨 DLL 场景下发生问题。
+ * - Platforms.h 包含平台/编译器检测宏与 DS_API 等导出定义，移植或包装时请优先参考该文件。
+ *
+ * @section contrib_sec 贡献指南
+ *
+ * 欢迎通过 Pull Request 提交实现或文档改进。请在 PR 中包含可重现的变更说明与必要的测试。
+ */

@@ -1,0 +1,72 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDE Temp
+.vs/**
+.vscode/**
+.idea/**
+
+# Build Output
+/[Bb]uild/
+/[Ii]nstall/
+/[Oo]ut/
+/cmake-build-*/
+
+# Github Action Ninja
+/ninja-build/
+
+# vcpkg Packages
+/vcpkg_installed/
+
+# Resources
+*.aps
+
+# Caches
+/caches/
+
+# JNI Output
+/include/jni/**/*.class
+
+# Assets
+/data/assets/**
+!/data/assets/Put assets in here.txt
+
+# Mac Finder Data
+.DS_Store
+
+# clangd cache
+.cache
+compile_commands.json
+
+# Logs
+/logs

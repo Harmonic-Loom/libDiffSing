@@ -1,0 +1,60 @@
+/**
+ * @mainpage libDiffSing API 文档
+ *
+ * @note 另请参阅：<a href="internal/index.html">内部实现文档 (Internal Documentation)</a>
+ *
+ * @section intro_sec 简介
+ *
+ * libDiffSing 是一个轻量级的 DiffSinger C 运行时（DiffSinger C Runtime），
+ * 提供面向嵌入和跨平台集成的纯 C 接口。文档聚焦于对外公开的 C API（位于 include/）。
+ *
+ * @section modules_sec 模块概览
+ *
+ * | 头文件 | 说明 |
+ * |--------|------|
+ * | @ref libDiffSing.h | 库核心公共 C API（生命周期、版本查询、内存管理等） |
+ * | @ref Platforms.h | 平台检测、导出宏、调用约定与构建相关定义 |
+ *
+ * @section usage_sec 基本使用示例
+ *
+ * 以下示例展示最小的初始化与清理流程：
+ *
+ * @subsection usage_init 初始化与关闭
+ *
+ * @code{.c}
+ * // 初始化库（在应用启动或首次使用前调用）
+ * DSInitLibrary();
+ *
+ * // 查询版本
+ * const char* ver = DSGetLibraryVersion();
+ * // ver 不需要释放
+ *
+ * // 应用退出或不再使用时关闭库
+ * DSShutdownLibrary();
+ * @endcode
+ *
+ * @subsection usage_memory 内存分配与释放
+ *
+ * 库提供用于回调和跨模块传递的堆分配函数：
+ *
+ * @code{.c}
+ * void* p = DSMalloc(128);
+ * // 使用后释放
+ * DSFree(p);
+ *
+ * // 释放由库返回且以 NULL 结尾的指针数组
+ * // DSFreeArray(ptrArray);
+ * @endcode
+ *
+ * @section platform_sec 平台与构建
+ *
+ * 本项目使用 CMake 构建（见顶层 CMakeLists.txt），支持主流桌面与移动平台。
+ * 头文件 Platforms.h 定义了跨平台的导出宏（DS_API）、调用约定和平台检测宏，
+ * 请在移植或包装时参考该文件。
+ *
+ * @section contrib_sec 贡献与许可证
+ *
+ * 项目采用 MIT 许可证，详见仓库根目录的 LICENSE 文件。欢迎通过 Pull Request 贡献文档或代码改进。
+ *
+ * @see libDiffSing.h
+ */
