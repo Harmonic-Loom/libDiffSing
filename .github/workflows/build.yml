@@ -1,0 +1,449 @@
+name: Build Artifacts
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+  workflow_dispatch:
+    inputs:
+      enable-android-arm64:
+        description: '启用 Android ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-android-x64:
+        description: '启用 Android x64 构建和打包'
+        type: boolean
+        default: false
+      enable-ios-arm64:
+        description: '启用 iOS ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-iossimu-arm64:
+        description: '启用 iOS Simulator ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-windows-x64:
+        description: '启用 Windows x64 构建和打包'
+        type: boolean
+        default: true
+      enable-windows-arm64:
+        description: '启用 Windows ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-arm64:
+        description: '启用 macOS ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-x64:
+        description: '启用 macOS x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-x64:
+        description: '启用 Linux x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-arm64:
+        description: '启用 Linux ARM64 构建和打包'
+        type: boolean
+        default: true
+  workflow_call:
+    secrets:
+      GH_PACKAGES_TOKEN:
+        required: true
+    inputs:
+      enable-android-arm64:
+        description: '启用 Android ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-android-x64:
+        description: '启用 Android x64 构建和打包'
+        type: boolean
+        default: false
+      enable-ios-arm64:
+        description: '启用 iOS ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-iossimu-arm64:
+        description: '启用 iOS Simulator ARM64 构建和打包'
+        type: boolean
+        default: false
+      enable-windows-x64:
+        description: '启用 Windows x64 构建和打包'
+        type: boolean
+        default: true
+      enable-windows-arm64:
+        description: '启用 Windows ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-arm64:
+        description: '启用 macOS ARM64 构建和打包'
+        type: boolean
+        default: true
+      enable-macos-x64:
+        description: '启用 macOS x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-x64:
+        description: '启用 Linux x64 构建和打包'
+        type: boolean
+        default: true
+      enable-linux-arm64:
+        description: '启用 Linux ARM64 构建和打包'
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  attestation: false
+  ninja-version: '1.13.2'
+  sha-length: 7
+  USERNAME: Harmonic-Loom
+  VCPKG_EXE: ${{github.workspace}}/vcpkg/vcpkg
+  FEED_URL: https://nuget.pkg.github.com/Harmonic-Loom/index.json
+  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/Harmonic-Loom/index.json,readwrite"
+  PACKAGE_LINUX: ''
+  PACKAGE_MAC: ''
+  # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
+  # workflow_dispatch 或 workflow_call 时读取 inputs，其他触发方式使用此处默认值
+  enable-android-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-arm64 || 'false'}}
+  enable-android-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-android-x64 || 'false'}}
+  enable-ios-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-ios-arm64 || 'false'}}
+  enable-iossimu-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-iossimu-arm64 || 'false'}}
+  enable-windows-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-x64 || 'true'}}
+  enable-windows-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-windows-arm64 || 'true'}}
+  enable-macos-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-arm64 || 'true'}}
+  enable-macos-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-macos-x64 || 'true'}}
+  enable-linux-x64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-x64 || 'true'}}
+  enable-linux-arm64: ${{(github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') && inputs.enable-linux-arm64 || 'true'}}
+
+jobs:
+  # 计算各下游 job 需要的 matrix JSON，过滤掉被禁用的平台/架构组合
+  # 因为 GitHub Actions 的 job 级 if 条件不支持 matrix 上下文，只能通过此方式实现动态过滤
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      prepare-matrix: ${{steps.gen-prepare.outputs.prepare-matrix}}
+      build-matrix: ${{steps.gen-build.outputs.build-matrix}}
+    steps:
+      - name: Clean Workspace
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: |
+          Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate prepare-package matrix
+        id: gen-prepare
+        shell: pwsh
+        run: |
+          $json = ./scripts/ci/matrix/genPrepareMatrix.ps1 `
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+          "prepare-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Generate build matrix
+        id: gen-build
+        shell: pwsh
+        run: |
+          $json = ./scripts/ci/matrix/genBuildMatrix.ps1 `
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+          "build-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+  prepare-package:
+    needs: [setup-matrix]
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJSON(needs.setup-matrix.outputs.prepare-matrix)}}
+
+    steps:
+    - name: Clean Workspace
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: |
+        Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+    - name: Configure Git to rewrite SSH URLs to HTTPS
+      shell: pwsh
+      run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Setup Ninja
+      uses: seanmiddleditch/gha-setup-ninja@master
+      with:
+        version: ${{env.ninja-version}}
+
+    - name: Install vcpkg Windows
+      if: runner.os == 'Windows'
+      working-directory: ${{github.workspace}}/vcpkg
+      shell: cmd
+      run: .\bootstrap-vcpkg.bat
+
+    - name: Install vcpkg Mac or Linux
+      if: runner.os == 'macOS' || runner.os == 'Linux'
+      working-directory: ${{github.workspace}}/vcpkg
+      shell: bash
+      run: |
+        bash ./bootstrap-vcpkg.sh
+        if [[ "${{matrix.vcpkg-force-system-binaries}}" == "true" ]]; then
+          echo "VCPKG_FORCE_SYSTEM_BINARIES=1" >> $GITHUB_ENV
+        fi
+
+    - name: Install Mono
+      if: runner.os != 'Windows'
+      shell: pwsh
+      run: ./scripts/ci/setup/installMono.ps1
+
+    - name: Install NuGet
+      if: runner.os != 'Windows'
+      shell: pwsh
+      run: ./scripts/ci/setup/installNuGet.ps1
+
+    - name: Add NuGet Sources
+      shell: pwsh
+      run: |
+        $useSystemNuGet = '${{matrix.vcpkg-force-system-binaries}}' -eq 'true'
+        ./scripts/ci/setup/addNuGetSource.ps1 `
+          -VcpkgExe "${{env.VCPKG_EXE}}" `
+          -FeedUrl "${{env.FEED_URL}}" `
+          -Username "${{env.USERNAME}}" `
+          -Token "${{secrets.GH_PACKAGES_TOKEN}}" `
+          -UseSystemNuGet:$useSystemNuGet
+
+    - name: Install Packages Requirements on Mac
+      if: runner.os == 'macOS' && env.PACKAGE_MAC != ''
+      shell: bash
+      run: brew install ${{env.PACKAGE_MAC}}
+
+    - name: Install Packages Requirements on Linux
+      if: runner.os == 'Linux' && env.PACKAGE_LINUX != ''
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y ${{env.PACKAGE_LINUX}}
+
+    - name: Install Packages
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: ./scripts/ci/build/buildPackages.ps1 -PresetName ${{matrix.cmake-preset}}
+
+    - name: Get Short SHA
+      if: ${{!cancelled()}}
+      uses: benjlevesque/short-sha@v3.0
+      id: short-sha
+      with:
+        length: ${{env.sha-length}}
+
+    - name: Archive vcpkg Logs
+      if: ${{!cancelled()}}
+      uses: actions/upload-artifact@v4
+      with:
+        name: vcpkglogs-${{matrix.target-os}}-${{matrix.arch}}-${{steps.short-sha.outputs.sha}}
+        path: |
+          vcpkg/buildtrees/*/*.log
+        retention-days: 7
+        compression-level: 9
+
+  build:
+    runs-on: ${{matrix.os}}
+    needs: [setup-matrix, prepare-package]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJSON(needs.setup-matrix.outputs.build-matrix)}}
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+    - name: Clean Workspace
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: |
+        Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+    - name: Configure Git to rewrite SSH URLs to HTTPS
+      shell: pwsh
+      run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+        lfs: true
+
+    - name: Setup Ninja
+      uses: seanmiddleditch/gha-setup-ninja@master
+      with:
+        version: ${{env.ninja-version}}
+
+    - name: Install vcpkg Windows
+      if: runner.os == 'Windows'
+      working-directory: ${{github.workspace}}/vcpkg
+      shell: cmd
+      run: .\bootstrap-vcpkg.bat
+
+    - name: Install vcpkg Mac or Linux
+      if: runner.os == 'macOS' || runner.os == 'Linux'
+      working-directory: ${{github.workspace}}/vcpkg
+      shell: bash
+      run: |
+        bash ./bootstrap-vcpkg.sh
+        if [[ "${{matrix.vcpkg-force-system-binaries}}" == "true" ]]; then
+          echo "VCPKG_FORCE_SYSTEM_BINARIES=1" >> $GITHUB_ENV
+        fi
+
+    - name: Install Mono
+      if: runner.os != 'Windows'
+      shell: pwsh
+      run: ./scripts/ci/setup/installMono.ps1
+
+    - name: Install NuGet
+      if: runner.os != 'Windows'
+      shell: pwsh
+      run: ./scripts/ci/setup/installNuGet.ps1
+
+    - name: Add NuGet Sources
+      shell: pwsh
+      run: |
+        $useSystemNuGet = '${{matrix.vcpkg-force-system-binaries}}' -eq 'true'
+        ./scripts/ci/setup/addNuGetSource.ps1 `
+          -VcpkgExe "${{env.VCPKG_EXE}}" `
+          -FeedUrl "${{env.FEED_URL}}" `
+          -Username "${{env.USERNAME}}" `
+          -Token "${{secrets.GH_PACKAGES_TOKEN}}" `
+          -UseSystemNuGet:$useSystemNuGet
+
+    - name: Install Packages Requirements on Mac
+      if: runner.os == 'macOS' && env.PACKAGE_MAC != ''
+      shell: bash
+      run: brew install ${{env.PACKAGE_MAC}}
+
+    - name: Install Packages Requirements on Linux
+      if: runner.os == 'Linux' && env.PACKAGE_LINUX != ''
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y ${{env.PACKAGE_LINUX}}
+
+    - name: Initialize MSVC Environment
+      if: matrix.target-os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{matrix.arch}}
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: cmake --preset "${{matrix.cmake-preset}}"
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: cmake --build --preset "${{matrix.cmake-preset}}" --target all
+
+    - name: Build Documentation
+      if: matrix.cmake-preset == 'windows-x64-debug'
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: cmake --build --preset "${{matrix.cmake-preset}}" --target docs
+
+    - name: Copy Dynamic Librarys
+      if: matrix.target-os != 'iOS' && matrix.target-os != 'iOS-Simulator'
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: ./scripts/ci/build/copyDynLib.ps1 "build/${{matrix.cmake-preset}}/vcpkg_installed/" "${{matrix.lib-path}}" "./build/${{matrix.cmake-preset}}/bin"
+     
+    - name: Copy Licenses
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: ./scripts/ci/build/copyLicenses.ps1 -VcpkgRoot "build/${{matrix.cmake-preset}}/vcpkg_installed/" -OutputDir "./build/${{matrix.cmake-preset}}/bin/licenses"
+
+    - name: Copy JNI Class
+      if: matrix.target-os == 'Android'
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: ./scripts/ci/build/copyJavaFile.ps1 "./include/jni/" "./build/${{matrix.cmake-preset}}/bin"
+      
+    - name: Copy C Header Files
+      if: matrix.target-os != 'iOS' && matrix.target-os != 'iOS-Simulator'
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: ./scripts/ci/build/copyHeaders.ps1 "./include/" "./build/${{matrix.cmake-preset}}/bin/include"
+
+    - name: Find Files
+      id: find-files
+      working-directory: ${{github.workspace}}
+      shell: pwsh
+      run: |
+        $output_files = (./scripts/ci/build/findFiles.ps1 -DirectoryPath "./build/${{matrix.cmake-preset}}/bin") | Out-String
+        $outputString = "output_files=$output_files"
+        $outputString | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        Write-Host "Found output files: $output_files"
+
+    - name: Generate Artifact Attestation
+      if: env.attestation == 'true' && github.event_name != 'pull_request' 
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '${{steps.find-files.outputs.output_files}}'
+
+    - name: Get Short SHA
+      uses: benjlevesque/short-sha@v3.0
+      id: short-sha
+      with:
+        length: ${{env.sha-length}}
+
+    - name: Archive Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: LibDiffSing-${{matrix.cmake-preset}}-${{steps.short-sha.outputs.sha}}
+        path: |
+          build/${{matrix.cmake-preset}}/bin/**
+        compression-level: 9
+
+    - name: Archive Documentation
+      if: matrix.cmake-preset == 'windows-x64-debug'
+      uses: actions/upload-artifact@v4
+      with:
+        name: LibDiffSing-docs-${{steps.short-sha.outputs.sha}}
+        path: build/${{matrix.cmake-preset}}/docs/**
+        compression-level: 9
