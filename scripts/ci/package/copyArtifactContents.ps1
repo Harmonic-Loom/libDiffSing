@@ -6,6 +6,12 @@ param (
 # 拆分路径并清除空白项
 $paths = @($pathList -split ';' | Where-Object { $_ -and (Test-Path $_) })
 
+# 如果没有有效的源路径，则不做任何操作
+if ($paths.Count -eq 0) {
+    Write-Host "没有可用的源路径（或源路径不存在）"
+    return
+}
+
 # 创建目标目录（如不存在）
 if (-not (Test-Path $targetDir)) {
     New-Item -ItemType Directory -Force -Path $targetDir | Out-Null

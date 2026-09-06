@@ -9,8 +9,8 @@ param (
 # 拆分路径列表并获取首个路径
 $parentDirs = $SourceDirList -split ';' | Where-Object { $_ -and (Test-Path $_) }
 if ($parentDirs.Count -eq 0) {
-    Write-Error "路径列表为空"
-    exit 1
+    Write-Host "源目录列表为空或所有源目录不存在"
+    return
 }
 
 if ($parentDirs.Count -gt 1) {

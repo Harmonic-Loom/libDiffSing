@@ -5,6 +5,12 @@ param(
     [string]$OutputDir    # 输出目录，如 D:\licenses
 )
 
+# 如果源目录不存在，则不做任何操作
+if (-not (Test-Path $VcpkgRoot)) {
+    Write-Host "源目录不存在: $VcpkgRoot"
+    return
+}
+
 # 确保输出目录存在
 if (!(Test-Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir | Out-Null

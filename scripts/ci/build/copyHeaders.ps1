@@ -6,6 +6,12 @@ param (
     [string]$TargetDir
 )
 
+# 如果源目录不存在，则不做任何操作
+if (-not (Test-Path $SourceDir)) {
+    Write-Host "源目录不存在: $SourceDir"
+    return
+}
+
 # 创建目标目录（如不存在）
 if (-not (Test-Path $TargetDir)) {
     New-Item -ItemType Directory -Force -Path $TargetDir | Out-Null
