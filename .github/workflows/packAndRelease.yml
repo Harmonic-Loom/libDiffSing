@@ -95,16 +95,16 @@ on:
 env:
   # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
   # workflow_dispatch 或 workflow_call 时读取 inputs，其他触发方式使用此处默认值
-  enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-android-arm64']) || 'true'}}
-  enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-android-x64']) || 'true'}}
-  enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-ios-arm64']) || 'true'}}
-  enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-iossimu-arm64']) || 'true'}}
-  enable-windows-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-windows-x64']) || 'true'}}
-  enable-windows-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-windows-arm64']) || 'true'}}
-  enable-macos-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-macos-arm64']) || 'true'}}
-  enable-macos-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-macos-x64']) || 'true'}}
-  enable-linux-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-linux-x64']) || 'true'}}
-  enable-linux-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-linux-arm64']) || 'true'}}
+  enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-arm64) || 'true'}}
+  enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-x64) || 'true'}}
+  enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-ios-arm64) || 'true'}}
+  enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-iossimu-arm64) || 'true'}}
+  enable-windows-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-x64) || 'true'}}
+  enable-windows-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-arm64) || 'true'}}
+  enable-macos-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-arm64) || 'true'}}
+  enable-macos-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-x64) || 'true'}}
+  enable-linux-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-x64) || 'true'}}
+  enable-linux-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-arm64) || 'true'}}
 
 permissions:
   contents: read
@@ -119,18 +119,19 @@ jobs:
   call-build:
     name: Build Artifacts
     uses: ./.github/workflows/build.yml
-    secrets: inherit
+    secrets:
+      GH_PACKAGES_TOKEN: ${{secrets.GH_PACKAGES_TOKEN}}
     with:
-      enable-android-arm64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-android-arm64']) || 'true')}}
-      enable-android-x64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-android-x64']) || 'true')}}
-      enable-ios-arm64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-ios-arm64']) || 'true')}}
-      enable-iossimu-arm64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-iossimu-arm64']) || 'true')}}
-      enable-windows-x64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-windows-x64']) || 'true')}}
-      enable-windows-arm64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-windows-arm64']) || 'true')}}
-      enable-macos-arm64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-macos-arm64']) || 'true')}}
-      enable-macos-x64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-macos-x64']) || 'true')}}
-      enable-linux-x64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-linux-x64']) || 'true')}}
-      enable-linux-arm64: ${{fromJSON(contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-linux-arm64']) || 'true')}}
+      enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-android-arm64}}
+      enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-android-x64}}
+      enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-ios-arm64}}
+      enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-iossimu-arm64}}
+      enable-windows-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-windows-x64}}
+      enable-windows-arm64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-windows-arm64}}
+      enable-macos-arm64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-macos-arm64}}
+      enable-macos-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-macos-x64}}
+      enable-linux-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-linux-x64}}
+      enable-linux-arm64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-linux-arm64}}
 
     permissions:
       id-token: write
@@ -163,16 +164,16 @@ jobs:
         shell: pwsh
         run: |
           $json = ./scripts/ci/matrix/genPackageMatrix.ps1 `
-            -EnableAndroidArm64  '${{env['enable-android-arm64']}}' `
-            -EnableAndroidX64    '${{env['enable-android-x64']}}' `
-            -EnableIosArm64      '${{env['enable-ios-arm64']}}' `
-            -EnableIossimuArm64  '${{env['enable-iossimu-arm64']}}' `
-            -EnableWindowsX64    '${{env['enable-windows-x64']}}' `
-            -EnableWindowsArm64  '${{env['enable-windows-arm64']}}' `
-            -EnableMacosArm64    '${{env['enable-macos-arm64']}}' `
-            -EnableMacosX64      '${{env['enable-macos-x64']}}' `
-            -EnableLinuxX64      '${{env['enable-linux-x64']}}' `
-            -EnableLinuxArm64    '${{env['enable-linux-arm64']}}'
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
           "package-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Generate release matrix
@@ -180,16 +181,16 @@ jobs:
         shell: pwsh
         run: |
           $json = ./scripts/ci/matrix/genReleaseMatrix.ps1 `
-            -EnableAndroidArm64  '${{env['enable-android-arm64']}}' `
-            -EnableAndroidX64    '${{env['enable-android-x64']}}' `
-            -EnableIosArm64      '${{env['enable-ios-arm64']}}' `
-            -EnableIossimuArm64  '${{env['enable-iossimu-arm64']}}' `
-            -EnableWindowsX64    '${{env['enable-windows-x64']}}' `
-            -EnableWindowsArm64  '${{env['enable-windows-arm64']}}' `
-            -EnableMacosArm64    '${{env['enable-macos-arm64']}}' `
-            -EnableMacosX64      '${{env['enable-macos-x64']}}' `
-            -EnableLinuxX64      '${{env['enable-linux-x64']}}' `
-            -EnableLinuxArm64    '${{env['enable-linux-arm64']}}'
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
           "release-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
   package:

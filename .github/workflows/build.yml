@@ -112,16 +112,16 @@ env:
   PACKAGE_MAC: ''
   # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
   # workflow_dispatch 或 workflow_call 时读取 inputs，其他触发方式使用此处默认值
-  enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-android-arm64']) || 'true'}}
-  enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-android-x64']) || 'true'}}
-  enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-ios-arm64']) || 'true'}}
-  enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-iossimu-arm64']) || 'true'}}
-  enable-windows-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-windows-x64']) || 'true'}}
-  enable-windows-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-windows-arm64']) || 'true'}}
-  enable-macos-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-macos-arm64']) || 'true'}}
-  enable-macos-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-macos-x64']) || 'true'}}
-  enable-linux-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-linux-x64']) || 'true'}}
-  enable-linux-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs['enable-linux-arm64']) || 'true'}}
+  enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-arm64) || 'true'}}
+  enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-x64) || 'true'}}
+  enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-ios-arm64) || 'true'}}
+  enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-iossimu-arm64) || 'true'}}
+  enable-windows-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-x64) || 'true'}}
+  enable-windows-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-arm64) || 'true'}}
+  enable-macos-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-arm64) || 'true'}}
+  enable-macos-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-x64) || 'true'}}
+  enable-linux-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-x64) || 'true'}}
+  enable-linux-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-arm64) || 'true'}}
 
 jobs:
   # 计算各下游 job 需要的 matrix JSON，过滤掉被禁用的平台/架构组合
@@ -148,16 +148,16 @@ jobs:
         shell: pwsh
         run: |
           $json = ./scripts/ci/matrix/genPrepareMatrix.ps1 `
-            -EnableAndroidArm64  '${{env['enable-android-arm64']}}' `
-            -EnableAndroidX64    '${{env['enable-android-x64']}}' `
-            -EnableIosArm64      '${{env['enable-ios-arm64']}}' `
-            -EnableIossimuArm64  '${{env['enable-iossimu-arm64']}}' `
-            -EnableWindowsX64    '${{env['enable-windows-x64']}}' `
-            -EnableWindowsArm64  '${{env['enable-windows-arm64']}}' `
-            -EnableMacosArm64    '${{env['enable-macos-arm64']}}' `
-            -EnableMacosX64      '${{env['enable-macos-x64']}}' `
-            -EnableLinuxX64      '${{env['enable-linux-x64']}}' `
-            -EnableLinuxArm64    '${{env['enable-linux-arm64']}}'
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
           "prepare-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Generate build matrix
@@ -165,16 +165,16 @@ jobs:
         shell: pwsh
         run: |
           $json = ./scripts/ci/matrix/genBuildMatrix.ps1 `
-            -EnableAndroidArm64  '${{env['enable-android-arm64']}}' `
-            -EnableAndroidX64    '${{env['enable-android-x64']}}' `
-            -EnableIosArm64      '${{env['enable-ios-arm64']}}' `
-            -EnableIossimuArm64  '${{env['enable-iossimu-arm64']}}' `
-            -EnableWindowsX64    '${{env['enable-windows-x64']}}' `
-            -EnableWindowsArm64  '${{env['enable-windows-arm64']}}' `
-            -EnableMacosArm64    '${{env['enable-macos-arm64']}}' `
-            -EnableMacosX64      '${{env['enable-macos-x64']}}' `
-            -EnableLinuxX64      '${{env['enable-linux-x64']}}' `
-            -EnableLinuxArm64    '${{env['enable-linux-arm64']}}'
+            -EnableAndroidArm64  '${{env.enable-android-arm64}}' `
+            -EnableAndroidX64    '${{env.enable-android-x64}}' `
+            -EnableIosArm64      '${{env.enable-ios-arm64}}' `
+            -EnableIossimuArm64  '${{env.enable-iossimu-arm64}}' `
+            -EnableWindowsX64    '${{env.enable-windows-x64}}' `
+            -EnableWindowsArm64  '${{env.enable-windows-arm64}}' `
+            -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
+            -EnableMacosX64      '${{env.enable-macos-x64}}' `
+            -EnableLinuxX64      '${{env.enable-linux-x64}}' `
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
           "build-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
   prepare-package:
