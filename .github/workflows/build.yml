@@ -10,19 +10,19 @@ on:
       enable-android-arm64:
         description: '启用 Android ARM64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-android-x64:
         description: '启用 Android x64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-ios-arm64:
         description: '启用 iOS ARM64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-iossimu-arm64:
         description: '启用 iOS Simulator ARM64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-windows-x64:
         description: '启用 Windows x64 构建和打包'
         type: boolean
@@ -55,19 +55,19 @@ on:
       enable-android-arm64:
         description: '启用 Android ARM64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-android-x64:
         description: '启用 Android x64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-ios-arm64:
         description: '启用 iOS ARM64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-iossimu-arm64:
         description: '启用 iOS Simulator ARM64 构建和打包'
         type: boolean
-        default: false
+        default: true
       enable-windows-x64:
         description: '启用 Windows x64 构建和打包'
         type: boolean
@@ -112,10 +112,10 @@ env:
   PACKAGE_MAC: ''
   # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
   # workflow_dispatch 或 workflow_call 时读取 inputs，其他触发方式使用此处默认值
-  enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-arm64) || 'false'}}
-  enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-x64) || 'false'}}
-  enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-ios-arm64) || 'false'}}
-  enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-iossimu-arm64) || 'false'}}
+  enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-arm64) || 'true'}}
+  enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-x64) || 'true'}}
+  enable-ios-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-ios-arm64) || 'true'}}
+  enable-iossimu-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-iossimu-arm64) || 'true'}}
   enable-windows-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-x64) || 'true'}}
   enable-windows-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-windows-arm64) || 'true'}}
   enable-macos-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-arm64) || 'true'}}
