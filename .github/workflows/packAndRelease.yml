@@ -119,8 +119,7 @@ jobs:
   call-build:
     name: Build Artifacts
     uses: ./.github/workflows/build.yml
-    secrets:
-      GH_PACKAGES_TOKEN: ${{secrets.GH_PACKAGES_TOKEN}}
+    secrets: inherit
     with:
       enable-android-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-arm64) || 'true'}}
       enable-android-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-android-x64) || 'true'}}
