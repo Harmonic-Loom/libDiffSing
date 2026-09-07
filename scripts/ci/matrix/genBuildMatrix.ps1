@@ -48,8 +48,6 @@ $buildAll = @(
     @{ 'target-os'='Linux';         arch='x64';   os='ubuntu-latest';    'build-type'='Release'; 'cmake-preset'='linux-x64-release';      'lib-path'='lib';       key='linux-x64' }
     @{ 'target-os'='Linux';         arch='arm64'; os='ubuntu-24.04-arm'; 'build-type'='Debug';   'cmake-preset'='linux-arm64-debug';      'lib-path'='debug/lib'; key='linux-arm64'; 'vcpkg-force-system-binaries'=$true }
     @{ 'target-os'='Linux';         arch='arm64'; os='ubuntu-24.04-arm'; 'build-type'='Release'; 'cmake-preset'='linux-arm64-release';    'lib-path'='lib';       key='linux-arm64'; 'vcpkg-force-system-binaries'=$true }
-    @{ 'target-os'='WASM';          arch='wasm32'; os='ubuntu-latest';     'build-type'='Debug';   'cmake-preset'='wasm-debug';            'lib-path'='debug/lib'; key='wasm' }
-    @{ 'target-os'='WASM';          arch='wasm32'; os='ubuntu-latest';     'build-type'='Release'; 'cmake-preset'='wasm-release';          'lib-path'='lib';       key='wasm' }
     @{ 'target-os'='WASM';          arch='wasm32'; os='windows-latest';   'build-type'='Debug';   'cmake-preset'='wasm-debug';            'lib-path'='debug/lib'; key='wasm' }
     @{ 'target-os'='WASM';          arch='wasm32'; os='windows-latest';   'build-type'='Release'; 'cmake-preset'='wasm-release';          'lib-path'='lib';       key='wasm' }
 )
