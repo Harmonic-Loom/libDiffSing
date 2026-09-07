@@ -46,6 +46,10 @@ on:
         description: '启用 Linux ARM64 构建和打包'
         type: boolean
         default: true
+      enable-wasm:
+        description: '启用 WebAssembly 构建和打包'
+        type: boolean
+        default: true
   workflow_call:
     secrets:
       GH_PACKAGES_TOKEN:
@@ -91,6 +95,10 @@ on:
         description: '启用 Linux ARM64 构建和打包'
         type: boolean
         default: true
+      enable-wasm:
+        description: '启用 WebAssembly 构建和打包'
+        type: boolean
+        default: true
 
 env:
   # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
@@ -105,6 +113,7 @@ env:
   enable-macos-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-x64) || 'true'}}
   enable-linux-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-x64) || 'true'}}
   enable-linux-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-arm64) || 'true'}}
+  enable-wasm: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-wasm) || 'true'}}
 
 permissions:
   contents: read
@@ -132,6 +141,7 @@ jobs:
       enable-macos-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-macos-x64 == true}}
       enable-linux-x64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-linux-x64 == true}}
       enable-linux-arm64: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-linux-arm64 == true}}
+      enable-wasm: ${{!contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) || inputs.enable-wasm == true}}
 
     permissions:
       id-token: write
@@ -177,7 +187,8 @@ jobs:
             -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
             -EnableMacosX64      '${{env.enable-macos-x64}}' `
             -EnableLinuxX64      '${{env.enable-linux-x64}}' `
-            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}' `
+            -EnableWasm          '${{env.enable-wasm}}'
           "package-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Generate release matrix
@@ -194,7 +205,8 @@ jobs:
             -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
             -EnableMacosX64      '${{env.enable-macos-x64}}' `
             -EnableLinuxX64      '${{env.enable-linux-x64}}' `
-            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}' `
+            -EnableWasm          '${{env.enable-wasm}}'
           "release-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
   package:
