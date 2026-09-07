@@ -9,7 +9,7 @@ param(
     [Parameter(Mandatory = $false)] [string] $EnableMacosX64 = 'false',
     [Parameter(Mandatory = $false)] [string] $EnableLinuxX64 = 'false',
     [Parameter(Mandatory = $false)] [string] $EnableLinuxArm64 = 'false',
-    [Parameter(Mandatory = $false)] [string] $EnableWasm = 'false'
+    [Parameter(Mandatory = $false)] [string] $EnableEmscripten = 'false'
 )
 
 $enabled = @{
@@ -23,7 +23,7 @@ $enabled = @{
     'macos-x64'      = $EnableMacosX64      -eq 'true'
     'linux-x64'      = $EnableLinuxX64      -eq 'true'
     'linux-arm64'    = $EnableLinuxArm64    -eq 'true'
-    'wasm'           = $EnableWasm          -eq 'true'
+    'emscripten'     = $EnableEmscripten    -eq 'true'
 }
 $androidEnabled = $enabled['android-arm64'] -or $enabled['android-x64']
 $iosEnabled     = $enabled['ios-arm64']     -or $enabled['iossimu-arm64']
@@ -46,8 +46,8 @@ $packageAll = @(
     @{ target='Linux';   arch='x64';   os='ubuntu-latest';    'build-type'='release'; 'artifact-match'='linux-x64';     key='linux-x64' }
     @{ target='Linux';   arch='arm64'; os='ubuntu-24.04-arm'; 'build-type'='debug';   'artifact-match'='linux-arm64';   key='linux-arm64' }
     @{ target='Linux';   arch='arm64'; os='ubuntu-24.04-arm'; 'build-type'='release'; 'artifact-match'='linux-arm64';   key='linux-arm64' }
-    @{ target='WASM';    arch='wasm32'; os='windows-latest';   'build-type'='debug';   'artifact-match'='wasm';         key='wasm' }
-    @{ target='WASM';    arch='wasm32'; os='windows-latest';   'build-type'='release'; 'artifact-match'='wasm';         key='wasm' }
+    @{ target='Emscripten'; arch='wasm32'; os='windows-latest';   'build-type'='debug';   'artifact-match'='emscripten';   key='emscripten' }
+    @{ target='Emscripten'; arch='wasm32'; os='windows-latest';   'build-type'='release'; 'artifact-match'='emscripten';   key='emscripten' }
 )
 $package = @($packageAll | Where-Object {
     ($_.key -ne 'android'      -or $androidEnabled) -and
@@ -58,7 +58,7 @@ $package = @($packageAll | Where-Object {
     ($_.key -ne 'macos-x64'    -or $enabled['macos-x64']) -and
     ($_.key -ne 'linux-x64'    -or $enabled['linux-x64']) -and
     ($_.key -ne 'linux-arm64'  -or $enabled['linux-arm64']) -and
-    ($_.key -ne 'wasm'         -or $enabled['wasm'])
+    ($_.key -ne 'emscripten'   -or $enabled['emscripten'])
 } | ForEach-Object { $_.Remove('key'); $_ })
 
 # Ensure ConvertTo-Json receives the array as a whole
