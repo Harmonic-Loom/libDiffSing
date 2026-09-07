@@ -1,8 +1,8 @@
 {
   "version": 4,
   "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 25,
+    "major": 4,
+    "minor": 2,
     "patch": 0
   },
   "configurePresets": [
@@ -258,14 +258,17 @@
       "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Emscripten",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_C_COMPILER": "emcc",
+        "CMAKE_CXX_COMPILER": "em++",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "VCPKG_TARGET_TRIPLET": "wasm32-emscripten"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
           "hostOS": [ "Windows", "Linux", "macOS" ],
-          "intelliSenseMode": "windows-clang-x64",
+          "intelliSenseMode": "linux-clang-x64",
           "enableClangTidyCodeAnalysis": true
         }
       }
