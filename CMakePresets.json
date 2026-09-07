@@ -254,6 +254,23 @@
       }
     },
     {
+      "name": "wasm-default",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows", "Linux", "macOS" ],
+          "intelliSenseMode": "windows-clang-x64",
+          "enableClangTidyCodeAnalysis": true
+        }
+      }
+    },
+    {
       "name": "android-arm64-debug",
       "inherits": "android-default",
       "cacheVariables": {
@@ -428,6 +445,22 @@
         "CMAKE_BUILD_TYPE": "Release"
       },
       "binaryDir": "${sourceDir}/build/linux-arm64-release"
+    },
+    {
+      "name": "wasm-debug",
+      "inherits": "wasm-default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "binaryDir": "${sourceDir}/build/wasm-debug"
+    },
+    {
+      "name": "wasm-release",
+      "inherits": "wasm-default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "binaryDir": "${sourceDir}/build/wasm-release"
     }
   ],
   "buildPresets": [
@@ -518,6 +551,14 @@
     {
       "name": "osx-x64-release",
       "configurePreset": "osx-x64-release"
+    },
+    {
+      "name": "wasm-debug",
+      "configurePreset": "wasm-debug"
+    },
+    {
+      "name": "wasm-release",
+      "configurePreset": "wasm-release"
     }
   ]
 }
