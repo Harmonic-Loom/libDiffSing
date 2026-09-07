@@ -1,15 +1,15 @@
 param(
-    [Parameter(Mandatory = $true)] [string] $EnableAndroidArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableAndroidX64,
-    [Parameter(Mandatory = $true)] [string] $EnableIosArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableIossimuArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableWindowsX64,
-    [Parameter(Mandatory = $true)] [string] $EnableWindowsArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableMacosArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableMacosX64,
-    [Parameter(Mandatory = $true)] [string] $EnableLinuxX64,
-    [Parameter(Mandatory = $true)] [string] $EnableLinuxArm64
-    , [Parameter(Mandatory = $true)] [string] $EnableWasm
+    [Parameter(Mandatory = $false)] [string] $EnableAndroidArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableAndroidX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableIosArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableIossimuArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableWindowsX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableWindowsArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableMacosArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableMacosX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableLinuxX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableLinuxArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableWasm = 'false'
 )
 
 $enabled = @{
@@ -51,9 +51,9 @@ $buildAll = @(
     @{ 'target-os'='WASM';          arch='wasm32'; os='ubuntu-latest';     'build-type'='Debug';   'cmake-preset'='wasm-debug';            'lib-path'='debug/lib'; key='wasm' }
     @{ 'target-os'='WASM';          arch='wasm32'; os='ubuntu-latest';     'build-type'='Release'; 'cmake-preset'='wasm-release';          'lib-path'='lib';       key='wasm' }
 )
-$build = $buildAll | Where-Object { $enabled[$_.key] } | ForEach-Object { $_.Remove('key'); $_ }
+$build = @($buildAll | Where-Object { $enabled[$_.key] } | ForEach-Object { $_.Remove('key'); $_ })
 
-$json = ($build | ConvertTo-Json -Compress -Depth 5)
-if ($build.Count -eq 1) { $json = "[$json]" }
+# Ensure ConvertTo-Json receives the whole array (use -InputObject)
+$json = ConvertTo-Json -InputObject $build -Compress -Depth 5
 
 Write-Output $json
