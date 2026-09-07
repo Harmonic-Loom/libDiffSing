@@ -31,7 +31,7 @@ foreach ($path in $paths) {
     $fullLibPath = Join-Path $path.FullName $LibPath
     if (Test-Path $fullLibPath) {
         # 搜索所有匹配的文件
-        $extensions = @("*.so", "*.dylib", "*.dll", "*.pdb")
+        $extensions = @("*.so", "*.dylib", "*.dll", "*.pdb", "*.wasm")
         $files = Get-ChildItem -Path $fullLibPath -Recurse -Include $extensions -File
 
         foreach ($file in $files) {

@@ -47,6 +47,10 @@ on:
         description: '启用 Linux ARM64 构建和打包'
         type: boolean
         default: true
+      enable-wasm:
+        description: '启用 WebAssembly 构建和打包'
+        type: boolean
+        default: true
   workflow_call:
     secrets:
       GH_PACKAGES_TOKEN:
@@ -92,6 +96,10 @@ on:
         description: '启用 Linux ARM64 构建和打包'
         type: boolean
         default: true
+      enable-wasm:
+        description: '启用 WebAssembly 构建和打包'
+        type: boolean
+        default: true
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
@@ -103,6 +111,7 @@ permissions:
 env:
   attestation: false
   ninja-version: '1.13.2'
+  emscripten-version: '6.0.9'
   sha-length: 7
   USERNAME: Harmonic-Loom
   VCPKG_EXE: ${{github.workspace}}/vcpkg/vcpkg
@@ -122,6 +131,7 @@ env:
   enable-macos-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-macos-x64) || 'true'}}
   enable-linux-x64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-x64) || 'true'}}
   enable-linux-arm64: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-linux-arm64) || 'true'}}
+  enable-wasm: ${{contains(fromJSON('["workflow_dispatch","workflow_call"]'), github.event_name) && format('{0}', inputs.enable-wasm) || 'true'}}
 
 jobs:
   # 计算各下游 job 需要的 matrix JSON，过滤掉被禁用的平台/架构组合
@@ -158,6 +168,7 @@ jobs:
             -EnableMacosX64      '${{env.enable-macos-x64}}' `
             -EnableLinuxX64      '${{env.enable-linux-x64}}' `
             -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+            -EnableWasm          '${{env.enable-wasm}}'
           "prepare-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Generate build matrix
@@ -175,6 +186,7 @@ jobs:
             -EnableMacosX64      '${{env.enable-macos-x64}}' `
             -EnableLinuxX64      '${{env.enable-linux-x64}}' `
             -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+            -EnableWasm          '${{env.enable-wasm}}'
           "build-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
   prepare-package:
@@ -256,6 +268,12 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y ${{env.PACKAGE_LINUX}}
+
+    - name: Setup Emscripten
+      if: matrix.target-os == 'WASM'
+      uses: emscripten-core/setup-emsdk@v15
+      with:
+        version: ${{env.emscripten-version}}
 
     - name: Install Packages
       working-directory: ${{github.workspace}}
@@ -370,6 +388,12 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: ${{matrix.arch}}
+
+    - name: Setup Emscripten
+      if: matrix.target-os == 'WASM'
+      uses: emscripten-core/setup-emsdk@v15
+      with:
+        version: ${{env.emscripten-version}}
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}

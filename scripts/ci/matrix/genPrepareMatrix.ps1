@@ -9,6 +9,7 @@ param(
     [Parameter(Mandatory = $true)] [string] $EnableMacosX64,
     [Parameter(Mandatory = $true)] [string] $EnableLinuxX64,
     [Parameter(Mandatory = $true)] [string] $EnableLinuxArm64
+    , [Parameter(Mandatory = $true)] [string] $EnableWasm
 )
 
 $enabled = @{
@@ -22,6 +23,7 @@ $enabled = @{
     'macos-x64'      = $EnableMacosX64      -eq 'true'
     'linux-x64'      = $EnableLinuxX64      -eq 'true'
     'linux-arm64'    = $EnableLinuxArm64    -eq 'true'
+    'wasm'           = $EnableWasm          -eq 'true'
 }
 
 # prepare-package matrix: one entry per enabled platform/arch (debug preset only)
@@ -36,6 +38,7 @@ $prepareAll = @(
     @{ 'target-os'='MacOS';         arch='x64';   os='macos-26-intel';   'cmake-preset'='osx-x64-debug';        key='macos-x64' }
     @{ 'target-os'='Linux';         arch='x64';   os='ubuntu-latest';    'cmake-preset'='linux-x64-debug';      key='linux-x64' }
     @{ 'target-os'='Linux';         arch='arm64'; os='ubuntu-24.04-arm'; 'cmake-preset'='linux-arm64-debug';    key='linux-arm64'; 'vcpkg-force-system-binaries'=$true }
+    @{ 'target-os'='WASM';          arch='wasm32'; os='ubuntu-latest';     'cmake-preset'='wasm-debug';           key='wasm' }
 )
 $prepare = $prepareAll | Where-Object { $enabled[$_.key] } | ForEach-Object { $_.Remove('key'); $_ }
 

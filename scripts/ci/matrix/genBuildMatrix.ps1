@@ -9,6 +9,7 @@ param(
     [Parameter(Mandatory = $true)] [string] $EnableMacosX64,
     [Parameter(Mandatory = $true)] [string] $EnableLinuxX64,
     [Parameter(Mandatory = $true)] [string] $EnableLinuxArm64
+    , [Parameter(Mandatory = $true)] [string] $EnableWasm
 )
 
 $enabled = @{
@@ -22,6 +23,7 @@ $enabled = @{
     'macos-x64'      = $EnableMacosX64      -eq 'true'
     'linux-x64'      = $EnableLinuxX64      -eq 'true'
     'linux-arm64'    = $EnableLinuxArm64    -eq 'true'
+    'wasm'           = $EnableWasm          -eq 'true'
 }
 
 # build matrix: one entry per enabled platform/arch x Debug/Release
@@ -46,6 +48,8 @@ $buildAll = @(
     @{ 'target-os'='Linux';         arch='x64';   os='ubuntu-latest';    'build-type'='Release'; 'cmake-preset'='linux-x64-release';      'lib-path'='lib';       key='linux-x64' }
     @{ 'target-os'='Linux';         arch='arm64'; os='ubuntu-24.04-arm'; 'build-type'='Debug';   'cmake-preset'='linux-arm64-debug';      'lib-path'='debug/lib'; key='linux-arm64'; 'vcpkg-force-system-binaries'=$true }
     @{ 'target-os'='Linux';         arch='arm64'; os='ubuntu-24.04-arm'; 'build-type'='Release'; 'cmake-preset'='linux-arm64-release';    'lib-path'='lib';       key='linux-arm64'; 'vcpkg-force-system-binaries'=$true }
+    @{ 'target-os'='WASM';          arch='wasm32'; os='ubuntu-latest';     'build-type'='Debug';   'cmake-preset'='wasm-debug';            'lib-path'='debug/lib'; key='wasm' }
+    @{ 'target-os'='WASM';          arch='wasm32'; os='ubuntu-latest';     'build-type'='Release'; 'cmake-preset'='wasm-release';          'lib-path'='lib';       key='wasm' }
 )
 $build = $buildAll | Where-Object { $enabled[$_.key] } | ForEach-Object { $_.Remove('key'); $_ }
 
