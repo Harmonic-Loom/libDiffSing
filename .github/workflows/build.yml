@@ -167,7 +167,7 @@ jobs:
             -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
             -EnableMacosX64      '${{env.enable-macos-x64}}' `
             -EnableLinuxX64      '${{env.enable-linux-x64}}' `
-            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}' `
             -EnableWasm          '${{env.enable-wasm}}'
           "prepare-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
@@ -185,7 +185,7 @@ jobs:
             -EnableMacosArm64    '${{env.enable-macos-arm64}}' `
             -EnableMacosX64      '${{env.enable-macos-x64}}' `
             -EnableLinuxX64      '${{env.enable-linux-x64}}' `
-            -EnableLinuxArm64    '${{env.enable-linux-arm64}}'
+            -EnableLinuxArm64    '${{env.enable-linux-arm64}}' `
             -EnableWasm          '${{env.enable-wasm}}'
           "build-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
