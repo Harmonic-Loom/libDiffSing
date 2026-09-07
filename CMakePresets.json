@@ -254,7 +254,7 @@
       }
     },
     {
-      "name": "wasm-default",
+      "name": "emscripten-default",
       "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
@@ -450,20 +450,20 @@
       "binaryDir": "${sourceDir}/build/linux-arm64-release"
     },
     {
-      "name": "wasm-debug",
-      "inherits": "wasm-default",
+      "name": "emscripten-debug",
+      "inherits": "emscripten-default",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       },
-      "binaryDir": "${sourceDir}/build/wasm-debug"
+      "binaryDir": "${sourceDir}/build/emscripten-debug"
     },
     {
-      "name": "wasm-release",
-      "inherits": "wasm-default",
+      "name": "emscripten-release",
+      "inherits": "emscripten-default",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       },
-      "binaryDir": "${sourceDir}/build/wasm-release"
+      "binaryDir": "${sourceDir}/build/emscripten-release"
     }
   ],
   "buildPresets": [
@@ -556,12 +556,12 @@
       "configurePreset": "osx-x64-release"
     },
     {
-      "name": "wasm-debug",
-      "configurePreset": "wasm-debug"
+      "name": "emscripten-debug",
+      "configurePreset": "emscripten-debug"
     },
     {
-      "name": "wasm-release",
-      "configurePreset": "wasm-release"
+      "name": "emscripten-release",
+      "configurePreset": "emscripten-release"
     }
   ]
 }
