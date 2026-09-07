@@ -154,6 +154,10 @@ jobs:
         run: |
           Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
 
+      - name: Configure Git to rewrite SSH URLs to HTTPS
+        shell: pwsh
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -212,6 +216,10 @@ jobs:
         shell: pwsh
         run: |
           Remove-Item "*" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Configure Git to rewrite SSH URLs to HTTPS
+        shell: pwsh
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
       - name: Checkout
         uses: actions/checkout@v4
