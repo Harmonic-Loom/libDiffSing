@@ -1,14 +1,15 @@
 param(
-    [Parameter(Mandatory = $true)] [string] $EnableAndroidArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableAndroidX64,
-    [Parameter(Mandatory = $true)] [string] $EnableIosArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableIossimuArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableWindowsX64,
-    [Parameter(Mandatory = $true)] [string] $EnableWindowsArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableMacosArm64,
-    [Parameter(Mandatory = $true)] [string] $EnableMacosX64,
-    [Parameter(Mandatory = $true)] [string] $EnableLinuxX64,
-    [Parameter(Mandatory = $true)] [string] $EnableLinuxArm64
+    [Parameter(Mandatory = $false)] [string] $EnableAndroidArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableAndroidX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableIosArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableIossimuArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableWindowsX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableWindowsArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableMacosArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableMacosX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableLinuxX64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableLinuxArm64 = 'false',
+    [Parameter(Mandatory = $false)] [string] $EnableWasm = 'false'
 )
 
 $enabled = @{
@@ -22,6 +23,7 @@ $enabled = @{
     'macos-x64'      = $EnableMacosX64      -eq 'true'
     'linux-x64'      = $EnableLinuxX64      -eq 'true'
     'linux-arm64'    = $EnableLinuxArm64    -eq 'true'
+    'wasm'           = $EnableWasm          -eq 'true'
 }
 
 # prepare-package matrix: one entry per enabled platform/arch (debug preset only)
@@ -36,10 +38,11 @@ $prepareAll = @(
     @{ 'target-os'='MacOS';         arch='x64';   os='macos-26-intel';   'cmake-preset'='osx-x64-debug';        key='macos-x64' }
     @{ 'target-os'='Linux';         arch='x64';   os='ubuntu-latest';    'cmake-preset'='linux-x64-debug';      key='linux-x64' }
     @{ 'target-os'='Linux';         arch='arm64'; os='ubuntu-24.04-arm'; 'cmake-preset'='linux-arm64-debug';    key='linux-arm64'; 'vcpkg-force-system-binaries'=$true }
+    @{ 'target-os'='WASM';          arch='wasm32'; os='windows-latest';   'cmake-preset'='wasm-debug';           key='wasm' }
 )
-$prepare = $prepareAll | Where-Object { $enabled[$_.key] } | ForEach-Object { $_.Remove('key'); $_ }
+$prepare = @($prepareAll | Where-Object { $enabled[$_.key] } | ForEach-Object { $_.Remove('key'); $_ })
 
-$json = ($prepare | ConvertTo-Json -Compress -Depth 5)
-if ($prepare.Count -eq 1) { $json = "[$json]" }
+# Ensure ConvertTo-Json receives the whole array (use -InputObject)
+$json = ConvertTo-Json -InputObject $prepare -Compress -Depth 5
 
 Write-Output $json
