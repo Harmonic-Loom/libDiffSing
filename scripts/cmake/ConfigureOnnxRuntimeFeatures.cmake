@@ -25,7 +25,7 @@ elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-osx")
     set(ONNXRUNTIME_FEATURES "kleidiai")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-osx")
-    set(ONNXRUNTIME_FEATURES "kleidiai")
+    set(ONNXRUNTIME_FEATURES "")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-ios")
     set(ONNXRUNTIME_FEATURES "kleidiai")
