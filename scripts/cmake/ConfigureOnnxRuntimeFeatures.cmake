@@ -10,13 +10,13 @@ set(ONNXRUNTIME_FEATURES "")
 set(ONNXRUNTIME_FEATURES_JSON "")
 
 if(VCPKG_TARGET_TRIPLET MATCHES "^x64-windows")
-    set(ONNXRUNTIME_FEATURES "cuda" "openvino")
+    set(ONNXRUNTIME_FEATURES "cuda" "openvino" "tensorrt")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-windows")
     set(ONNXRUNTIME_FEATURES "kleidiai")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-linux")
-    set(ONNXRUNTIME_FEATURES "cuda" "openvino")
+    set(ONNXRUNTIME_FEATURES "cuda" "openvino" "tensorrt")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-linux")
     set(ONNXRUNTIME_FEATURES "kleidiai")
