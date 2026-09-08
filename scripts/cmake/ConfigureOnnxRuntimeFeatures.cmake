@@ -40,7 +40,7 @@ elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-android-api29")
     set(ONNXRUNTIME_FEATURES "nnapi" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^wasm32-emscripten")
-    set(ONNXRUNTIME_FEATURES "jsep" "wasm-simd" "xnnpack")
+    set(ONNXRUNTIME_FEATURES "jsep" "wasm-simd")
 
 else()
     message(WARNING "Unknown triplet '${VCPKG_TARGET_TRIPLET}', skipping ONNX Runtime features")

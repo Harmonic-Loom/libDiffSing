@@ -83,10 +83,6 @@
       "platform": "android"
     },
     {
-      "name": "xnnpack",
-      "platform": "emscripten"
-    },
-    {
       "name": "jsep",
       "platform": "emscripten"
     },
