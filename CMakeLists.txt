@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.25)
 
 string(REPLACE "\\" "/" CMAKE_ANDROID_NDK "${CMAKE_ANDROID_NDK}")
 
+# vcpkg manifest mode: vcpkg.cmake (via CMAKE_TOOLCHAIN_FILE) auto-installs dependencies
+include("${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/GenerateManifest.cmake")
+
 project(LibDiffSing VERSION 0.0.0 LANGUAGES CXX C)
 set(PROJECT_ID org.harmonicloom.libdiffsing)
 set(DIFFSING_FRAMEWORK_MODULE_NAME "${PROJECT_NAME}")
