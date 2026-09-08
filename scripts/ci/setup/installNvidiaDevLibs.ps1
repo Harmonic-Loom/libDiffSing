@@ -122,8 +122,8 @@ function Export-EnvForCurrentSession {
 	if ($IsWindows) {
 		$env:PATH = "$bin;$($env:PATH)"
 	} else {
-		$env:PATH = "$bin:$($env:PATH)"
-		$env:LD_LIBRARY_PATH = "$lib:$($env:LD_LIBRARY_PATH)"
+		$env:PATH = "${bin}:$($env:PATH)"
+		$env:LD_LIBRARY_PATH = "${lib}:$($env:LD_LIBRARY_PATH)"
 	}
 
 	$env:CUDA_PATH = $Prefix
@@ -138,8 +138,8 @@ function Export-EnvForCurrentSession {
 		if ($IsWindows) {
 			"PATH=$bin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		} else {
-			"PATH=$bin:$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-			"LD_LIBRARY_PATH=$lib:$env:LD_LIBRARY_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+			"PATH=${bin}:$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+			"LD_LIBRARY_PATH=${lib}:$env:LD_LIBRARY_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		}
 
 		Write-Host ':: 环境变量已写入 GITHUB_ENV'
