@@ -11,6 +11,8 @@ DiffSinger C Runtime（C/C++20，CMake + Ninja，多平台预设构建）。
 
 上游项目（DiffSinger）：<https://github.com/openvpi/DiffSinger>
 
+English version: [README.en.md](README.en.md)
+
 ## 1. 克隆与下载
 
 本仓库使用 `vcpkg` 作为子模块，请使用带子模块参数的克隆方式：
