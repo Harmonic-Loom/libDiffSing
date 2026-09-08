@@ -78,7 +78,7 @@
       "dependencies": [
         {
           "name": "directx-headers",
-          "platform": "windows",
+          "platform": "windows"
         }
       ]
     },
