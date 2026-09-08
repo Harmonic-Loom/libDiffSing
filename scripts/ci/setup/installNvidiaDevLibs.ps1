@@ -1,6 +1,8 @@
 <#
 .SYNOPSIS
-	在 Windows/Linux x64 上下载并安装 CUDA 12.8、cuDNN 9.x 与 TensorRT 10.9 开发库（基于 micromamba + conda 包）。
+	在 Windows/Linux x64 上下载并安装 CUDA 12.8、cuDNN 9.x 与 TensorRT 10.9 开发库。
+	- CUDA 和 cuDNN 从 conda（micromamba）安装
+	- TensorRT 从 NVIDIA 官方下载安装
 
 .DESCRIPTION
 	- Windows: win-64
@@ -18,8 +20,8 @@
 .PARAMETER CudnnSpec
 	cuDNN 包版本约束，默认 >=9,<10。
 
-.PARAMETER TensorRtSpec
-	TensorRT 包版本约束，默认 10.9.*。
+.PARAMETER TensorRtVersion
+	TensorRT 版本（从 NVIDIA 官方下载），默认 10.9.0.34。
 
 .PARAMETER Force
 	强制重建环境（先删除安装目录）。
@@ -29,20 +31,27 @@
 
 .EXAMPLE
 	./scripts/ci/setup/installNvidiaDevLibs.ps1 -InstallPrefix "C:/nvidia/dev" -Force
+
+.EXAMPLE
+	./scripts/ci/setup/installNvidiaDevLibs.ps1 -TensorRtVersion "10.8.0"
 #>
 param(
-	[string]$InstallPrefix = $(if ($IsWindows) { 'C:/nvidia/dev' } else { '/opt/nvidia/dev' }),
+	[string]$InstallPrefix = $(if ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) { 'C:/nvidia/dev' } else { '/opt/nvidia/dev' }),
 	[string]$CudaSpec = 'cuda-toolkit=12.8.*',
 	[string]$CudnnSpec = 'cudnn>=9,<10',
-	[string]$TensorRtSpec = 'tensorrt=10.9.*',
+	[string]$TensorRtVersion = '10.9.0.34',
 	[switch]$Force
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# Check platform once at the beginning
+$script:IsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
+$script:IsLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
+
 function Assert-SupportedPlatform {
-	if (-not ($IsWindows -or $IsLinux)) {
+	if (-not ($script:IsWindows -or $script:IsLinux)) {
 		throw "仅支持 Windows 或 Linux，当前平台不受支持。"
 	}
 
@@ -72,7 +81,7 @@ function Invoke-DownloadFile {
 function Get-MicromambaExe {
 	param([Parameter(Mandatory)][string]$WorkDir)
 
-	$platform = if ($IsWindows) { 'win-64' } else { 'linux-64' }
+	$platform = if ($script:IsWindows) { 'win-64' } else { 'linux-64' }
 	$archive = Join-Path $WorkDir "micromamba-$platform.tar.bz2"
 	$extract = Join-Path $WorkDir 'micromamba'
 	$url = "https://micro.mamba.pm/api/micromamba/$platform/latest"
@@ -89,7 +98,7 @@ function Get-MicromambaExe {
 		throw "解压 micromamba 失败。"
 	}
 
-	$exe = if ($IsWindows) {
+	$exe = if ($script:IsWindows) {
 		Join-Path $extract 'Library/bin/micromamba.exe'
 	} else {
 		Join-Path $extract 'bin/micromamba'
@@ -102,10 +111,99 @@ function Get-MicromambaExe {
 	return $exe
 }
 
+function Install-TensorRT {
+	param(
+		[Parameter(Mandatory)][string]$Version,
+		[Parameter(Mandatory)][string]$Prefix,
+		[Parameter(Mandatory)][string]$WorkDir
+	)
+
+	# Extract major.minor.patch from version like "10.9.0.34"
+	$versionParts = $Version -split '\.'
+	$versionPath = "$($versionParts[0]).$($versionParts[1]).$($versionParts[2])"
+
+	$platform = if ($script:IsWindows) { 'Windows.win10' } else { 'Linux.x86_64-gnu' }
+	$archiveName = "TensorRT-$Version.$platform.cuda-12.8"
+	$archiveExt = if ($script:IsWindows) { 'zip' } else { 'tar.gz' }
+	$archiveFile = "$archiveName.$archiveExt"
+	$archivePath = Join-Path $WorkDir $archiveFile
+
+	$url = if ($script:IsWindows) {
+		"https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/$versionPath/zip/$archiveFile"
+	} else {
+		"https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/$versionPath/tars/$archiveFile"
+	}
+
+	Write-Host ":: Downloading TensorRT from $url"
+	Invoke-DownloadFile -Url $url -OutputPath $archivePath
+
+	$extractPath = Join-Path $WorkDir 'tensorrt-extract'
+	if (Test-Path $extractPath) {
+		Remove-Item -Recurse -Force $extractPath
+	}
+	New-Item -ItemType Directory -Path $extractPath | Out-Null
+
+	Write-Host ":: Extracting TensorRT"
+	if ($script:IsWindows) {
+		Expand-Archive -Path $archivePath -DestinationPath $extractPath
+	} else {
+		& tar -xzf $archivePath -C $extractPath
+		if ($LASTEXITCODE -ne 0) {
+			throw "解压 TensorRT 失败。"
+		}
+	}
+
+	$tensorrtRoot = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
+	if (-not $tensorrtRoot) {
+		throw "未找到 TensorRT 提取目录"
+	}
+
+	Write-Host ":: Installing TensorRT to $Prefix"
+	if ($script:IsWindows) {
+		$srcBin = Join-Path $tensorrtRoot.FullName 'bin'
+		$srcLib = Join-Path $tensorrtRoot.FullName 'lib'
+		$srcInclude = Join-Path $tensorrtRoot.FullName 'include'
+
+		$dstBin = Join-Path $Prefix 'Library/bin'
+		$dstLib = Join-Path $Prefix 'Library/lib'
+		$dstInclude = Join-Path $Prefix 'Library/include'
+	} else {
+		$srcBin = Join-Path $tensorrtRoot.FullName 'bin'
+		$srcLib = Join-Path $tensorrtRoot.FullName 'lib'
+		$srcInclude = Join-Path $tensorrtRoot.FullName 'include'
+
+		$dstBin = Join-Path $Prefix 'bin'
+		$dstLib = Join-Path $Prefix 'lib'
+		$dstInclude = Join-Path $Prefix 'include'
+	}
+
+	foreach ($dir in @($dstBin, $dstLib, $dstInclude)) {
+		if (-not (Test-Path $dir)) {
+			New-Item -ItemType Directory -Path $dir -Force | Out-Null
+		}
+	}
+
+	if (Test-Path $srcBin) {
+		Copy-Item -Path "$srcBin/*" -Destination $dstBin -Recurse -Force
+		Write-Host ":: Copied TensorRT bin files"
+	}
+	if (Test-Path $srcLib) {
+		Copy-Item -Path "$srcLib/*" -Destination $dstLib -Recurse -Force
+		Write-Host ":: Copied TensorRT lib files"
+	}
+	if (Test-Path $srcInclude) {
+		Copy-Item -Path "$srcInclude/*" -Destination $dstInclude -Recurse -Force
+		Write-Host ":: Copied TensorRT include files"
+	}
+
+	Remove-Item -Recurse -Force $extractPath
+	Write-Host ":: TensorRT 安装完成"
+}
+
 function Export-EnvForCurrentSession {
 	param([Parameter(Mandatory)][string]$Prefix)
 
-	if ($IsWindows) {
+	if ($script:IsWindows) {
 		$bin = Join-Path $Prefix 'Library/bin'
 		$lib = Join-Path $Prefix 'Library/lib'
 		$include = Join-Path $Prefix 'Library/include'
@@ -119,7 +217,7 @@ function Export-EnvForCurrentSession {
 	if (-not (Test-Path $lib)) { throw "未找到 lib 目录: $lib" }
 	if (-not (Test-Path $include)) { throw "未找到 include 目录: $include" }
 
-	if ($IsWindows) {
+	if ($script:IsWindows) {
 		$env:PATH = "$bin;$($env:PATH)"
 	} else {
 		$env:PATH = "${bin}:$($env:PATH)"
@@ -135,7 +233,7 @@ function Export-EnvForCurrentSession {
 		"CUDNN_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"TENSORRT_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-		if ($IsWindows) {
+		if ($script:IsWindows) {
 			"PATH=$bin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		} else {
 			"PATH=${bin}:$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -162,13 +260,17 @@ if (-not (Test-Path $tempRoot)) {
 
 $micromamba = Get-MicromambaExe -WorkDir $tempRoot
 
-Write-Host ":: Installing packages to $prefix"
-& $micromamba create --yes --prefix $prefix -c nvidia -c conda-forge $CudaSpec $CudnnSpec $TensorRtSpec
+Write-Host ":: Installing CUDA and cuDNN to $prefix"
+& $micromamba create --yes --prefix $prefix -c nvidia -c conda-forge $CudaSpec $CudnnSpec
 if ($LASTEXITCODE -ne 0) {
 	throw "micromamba create 失败，退出码: $LASTEXITCODE"
 }
 
+Write-Host ":: Installing TensorRT $TensorRtVersion"
+Install-TensorRT -Version $TensorRtVersion -Prefix $prefix -WorkDir $tempRoot
+
 Export-EnvForCurrentSession -Prefix $prefix
 
 Write-Host ':: CUDA/cuDNN/TensorRT 开发库安装完成。'
-& $micromamba list --prefix $prefix | Select-String -Pattern 'cuda-toolkit|cudnn|tensorrt' | ForEach-Object { Write-Host $_ }
+& $micromamba list --prefix $prefix | Select-String -Pattern 'cuda-toolkit|cudnn' | ForEach-Object { Write-Host $_ }
+Write-Host ":: TensorRT version: $TensorRtVersion"
