@@ -102,7 +102,13 @@
     },
     "directml": {
       "description": "Build with DirectML support",
-      "supports": "windows"
+      "supports": "windows",
+      "dependencies": [
+        {
+          "name": "directx-headers",
+          "platform": "windows",
+        }
+      ]
     },
     "nnapi": {
       "description": "Build with NNAPI support",
