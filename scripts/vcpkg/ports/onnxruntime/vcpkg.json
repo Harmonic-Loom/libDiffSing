@@ -100,7 +100,7 @@
       "description": "Build with CoreML support",
       "supports": "osx | ios"
     },
-    "dml": {
+    "directml": {
       "description": "Build with DirectML support",
       "supports": "windows"
     },
