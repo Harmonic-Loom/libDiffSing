@@ -66,30 +66,6 @@
     }
   ],
   "default-features": [
-    {
-      "name": "coreml",
-      "platform": "osx | ios"
-    },
-    {
-      "name": "directml",
-      "platform": "windows"
-    },
-    {
-      "name": "winml",
-      "platform": "windows"
-    },
-    {
-      "name": "nnapi",
-      "platform": "android"
-    },
-    {
-      "name": "jsep",
-      "platform": "emscripten"
-    },
-    {
-      "name": "wasm-simd",
-      "platform": "emscripten"
-    }
   ],
   "features": {
     "coreml": {
