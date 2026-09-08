@@ -1,4 +1,4 @@
-﻿# ConfigureOnnxRuntimeFeatures.cmake
+# ConfigureOnnxRuntimeFeatures.cmake
 # Generates ONNX Runtime features based on platform
 
 if(NOT VCPKG_TARGET_TRIPLET)
@@ -13,7 +13,7 @@ if(VCPKG_TARGET_TRIPLET MATCHES "^x64-windows")
     set(ONNXRUNTIME_FEATURES "cuda" "openvino")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-windows")
-    set(ONNXRUNTIME_FEATURES "openvino")
+    set(ONNXRUNTIME_FEATURES "kleidiai")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-linux")
     set(ONNXRUNTIME_FEATURES "cuda" "openvino")
