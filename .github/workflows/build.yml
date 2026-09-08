@@ -119,7 +119,7 @@ env:
   VCPKG_EXE: ${{github.workspace}}/vcpkg/vcpkg
   FEED_URL: https://nuget.pkg.github.com/Harmonic-Loom/index.json
   VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/Harmonic-Loom/index.json,readwrite"
-  PACKAGE_LINUX: ''
+  PACKAGE_LINUX: 'cuda-toolkit tensorrt'
   PACKAGE_MAC: ''
   # 控制特定平台/架构组合是否参与构建和打包，设为 'true' 启用，'false' 禁用
   # workflow_dispatch 或 workflow_call 时读取 inputs，其他触发方式使用此处默认值
