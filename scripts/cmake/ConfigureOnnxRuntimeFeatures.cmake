@@ -16,7 +16,7 @@ elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-windows")
     set(ONNXRUNTIME_FEATURES "kleidiai" "directml" "winml")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-linux")
-    set(ONNXRUNTIME_FEATURES "cuda" "openvino" "tensorrt" "xnnpack")
+    set(ONNXRUNTIME_FEATURES "cuda" "tensorrt" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-linux")
     set(ONNXRUNTIME_FEATURES "kleidiai" "xnnpack")
