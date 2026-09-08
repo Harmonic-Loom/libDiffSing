@@ -35,17 +35,26 @@ endif()
 
 message(STATUS "Generating manifest for ${TRIPLET_DESC}")
 
+if(NOT DEFINED REPO_ROOT_DIR OR REPO_ROOT_DIR STREQUAL "")
+	get_filename_component(REPO_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+else()
+	get_filename_component(REPO_ROOT_DIR "${REPO_ROOT_DIR}" ABSOLUTE)
+endif()
+
+set(SCRIPTS_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
 # Configure ONNX Runtime features based on platform (generates ONNXRUNTIME_FEATURES_JSON variable)
-include("${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/ConfigureOnnxRuntimeFeatures.cmake")
+include("${SCRIPTS_DIR}/ConfigureOnnxRuntimeFeatures.cmake")
 
 # Configure additional dependencies here in the future
 # e.g., include(ConfigureOtherDependencies.cmake)
 
 # Generate vcpkg.json from template
 configure_file(
-	"${CMAKE_SOURCE_DIR}/vcpkg.json.in"
-	"${CMAKE_SOURCE_DIR}/vcpkg.json"
+	"${REPO_ROOT_DIR}/vcpkg.json.in"
+	"${REPO_ROOT_DIR}/vcpkg.json"
 	@ONLY
 )
 
 message(STATUS "✓ Generated vcpkg.json for ${TRIPLET_DESC}")
+message(STATUS "  Repo root: ${REPO_ROOT_DIR}")

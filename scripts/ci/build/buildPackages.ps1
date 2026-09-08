@@ -135,7 +135,29 @@ Write-Host "Preset: $PresetName"
 Write-Host "Triplet: $triplet"
 Write-Host "VCPKG Root: $vcpkgRoot"
 
+$generateManifestScript = Join-Path $sourceDir "scripts/cmake/GenerateManifest.cmake"
+if (-not (Test-Path $generateManifestScript)) {
+    Write-Error "未找到 GenerateManifest.cmake: $generateManifestScript"
+    exit 1
+}
+
+$cmakeExe = Get-Command cmake -ErrorAction SilentlyContinue
+if (-not $cmakeExe) {
+    Write-Error "未找到 cmake 可执行文件"
+    exit 1
+}
+
+Write-Host "生成 vcpkg.json: $generateManifestScript"
+& $cmakeExe.Source "-DVCPKG_TARGET_TRIPLET=$triplet" "-DREPO_ROOT_DIR=$sourceDir" -P $generateManifestScript
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "生成 vcpkg.json 失败"
+    exit $LASTEXITCODE
+}
+
 # 构造命令
 $cmd = "& `"$vcpkgExe`" install --triplet=$triplet"
 Write-Host "执行命令: $cmd"
 Invoke-Expression $cmd
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
