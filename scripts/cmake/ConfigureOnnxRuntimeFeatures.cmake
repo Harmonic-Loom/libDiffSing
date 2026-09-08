@@ -5,12 +5,15 @@ if(NOT VCPKG_TARGET_TRIPLET)
 	message(FATAL_ERROR "VCPKG_TARGET_TRIPLET not set")
 endif()
 
-# triplet to features mapping
+# triplet to features mapping (based on CMakePresets.json)
 set(ONNXRUNTIME_FEATURES "")
 set(ONNXRUNTIME_FEATURES_JSON "")
 
 if(VCPKG_TARGET_TRIPLET MATCHES "^x64-windows")
 	set(ONNXRUNTIME_FEATURES "cuda" "openvino")
+
+elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-windows")
+	set(ONNXRUNTIME_FEATURES "openvino")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-linux")
 	set(ONNXRUNTIME_FEATURES "cuda" "openvino")
@@ -18,20 +21,26 @@ elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-linux")
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-linux")
 	set(ONNXRUNTIME_FEATURES "kleidiai")
 
-elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-osx")
-	set(ONNXRUNTIME_FEATURES "framework")
-
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-osx")
-	set(ONNXRUNTIME_FEATURES "framework")
+	set(ONNXRUNTIME_FEATURES "kleidiai")
+
+elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-osx")
+	set(ONNXRUNTIME_FEATURES "kleidiai")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-ios")
-	set(ONNXRUNTIME_FEATURES "framework" "kleidiai")
-
-elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-android")
 	set(ONNXRUNTIME_FEATURES "kleidiai")
 
-elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-android")
+elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-ios-simulator")
 	set(ONNXRUNTIME_FEATURES "kleidiai")
+
+elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-android-api29")
+	set(ONNXRUNTIME_FEATURES "kleidiai")
+
+elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-android-api29")
+	set(ONNXRUNTIME_FEATURES "")
+
+elseif(VCPKG_TARGET_TRIPLET MATCHES "^wasm32-emscripten")
+	set(ONNXRUNTIME_FEATURES "")
 
 else()
 	message(WARNING "Unknown triplet '${VCPKG_TARGET_TRIPLET}', skipping ONNX Runtime features")
