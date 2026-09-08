@@ -10,37 +10,37 @@ set(ONNXRUNTIME_FEATURES "")
 set(ONNXRUNTIME_FEATURES_JSON "")
 
 if(VCPKG_TARGET_TRIPLET MATCHES "^x64-windows")
-    set(ONNXRUNTIME_FEATURES "cuda" "openvino" "tensorrt")
+    set(ONNXRUNTIME_FEATURES "cuda" "openvino" "tensorrt" "directml" "winml" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-windows")
-    set(ONNXRUNTIME_FEATURES "kleidiai")
+    set(ONNXRUNTIME_FEATURES "kleidiai" "directml" "winml")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-linux")
-    set(ONNXRUNTIME_FEATURES "cuda" "openvino" "tensorrt")
+    set(ONNXRUNTIME_FEATURES "cuda" "openvino" "tensorrt" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-linux")
-    set(ONNXRUNTIME_FEATURES "kleidiai")
+    set(ONNXRUNTIME_FEATURES "kleidiai" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-osx")
-    set(ONNXRUNTIME_FEATURES "kleidiai")
+    set(ONNXRUNTIME_FEATURES "kleidiai" "coreml" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-osx")
-    set(ONNXRUNTIME_FEATURES "")
+    set(ONNXRUNTIME_FEATURES "coreml" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-ios")
-    set(ONNXRUNTIME_FEATURES "kleidiai")
+    set(ONNXRUNTIME_FEATURES "kleidiai" "coreml" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-ios-simulator")
-    set(ONNXRUNTIME_FEATURES "kleidiai")
+    set(ONNXRUNTIME_FEATURES "kleidiai" "coreml" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-android-api29")
-    set(ONNXRUNTIME_FEATURES "kleidiai")
+    set(ONNXRUNTIME_FEATURES "kleidiai" "nnapi" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-android-api29")
-    set(ONNXRUNTIME_FEATURES "")
+    set(ONNXRUNTIME_FEATURES "nnapi" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^wasm32-emscripten")
-    set(ONNXRUNTIME_FEATURES "")
+    set(ONNXRUNTIME_FEATURES "jsep" "wasm-simd" "xnnpack")
 
 else()
     message(WARNING "Unknown triplet '${VCPKG_TARGET_TRIPLET}', skipping ONNX Runtime features")

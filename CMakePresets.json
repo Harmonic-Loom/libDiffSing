@@ -263,7 +263,7 @@
         "CMAKE_C_COMPILER": "emcc",
         "CMAKE_CXX_COMPILER": "em++",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten"
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-simd"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
