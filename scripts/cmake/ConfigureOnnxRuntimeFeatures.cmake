@@ -22,16 +22,16 @@ elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-linux")
     set(ONNXRUNTIME_FEATURES "kleidiai" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-osx")
-    set(ONNXRUNTIME_FEATURES "kleidiai" "xnnpack")
+    set(ONNXRUNTIME_FEATURES "coreml" "kleidiai" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^x64-osx")
-    set(ONNXRUNTIME_FEATURES "xnnpack")
+    set(ONNXRUNTIME_FEATURES "coreml" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-ios")
-    set(ONNXRUNTIME_FEATURES "kleidiai" "xnnpack")
+    set(ONNXRUNTIME_FEATURES "coreml" "kleidiai" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-ios-simulator")
-    set(ONNXRUNTIME_FEATURES "kleidiai" "xnnpack")
+    set(ONNXRUNTIME_FEATURES "coreml" "kleidiai" "xnnpack")
 
 elseif(VCPKG_TARGET_TRIPLET MATCHES "^arm64-android-api29")
     set(ONNXRUNTIME_FEATURES "kleidiai" "nnapi" "xnnpack")

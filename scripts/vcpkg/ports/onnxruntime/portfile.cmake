@@ -26,6 +26,21 @@ message(STATUS "Using protoc: ${PROTOC}")
 find_program(FLATC NAMES flatc PATHS "${CURRENT_HOST_INSTALLED_DIR}/tools/flatbuffers" REQUIRED NO_DEFAULT_PATH NO_CMAKE_PATH)
 message(STATUS "Using flatc: ${FLATC}")
 
+# onnxruntime's CMake config uses CMake's FetchContent to pull coremltools
+set(ORT_FETCHCONTENT_OVERRIDES)
+if("coreml" IN_LIST FEATURES)
+    vcpkg_download_distfile(ARCHIVE_COREMLTOOLS
+        URLS "https://github.com/apple/coremltools/archive/refs/tags/7.1.zip"
+        FILENAME "onnxruntime-coremltools-7.1.zip"
+        SHA512 c6645d0b48953fe4a7f3ffa34df35c40ddc764e76b9aa8ec1af282842f8346129df650514cb5bc6dde52ecb75750aac4ad159e5cfa6384146cfa72c75af77399
+    )
+    vcpkg_extract_source_archive(SOURCE_PATH_COREMLTOOLS
+        ARCHIVE "${ARCHIVE_COREMLTOOLS}"
+        PATCHES "${SOURCE_PATH}/cmake/patches/coremltools/crossplatformbuild.patch"
+    )
+    list(APPEND ORT_FETCHCONTENT_OVERRIDES "-DFETCHCONTENT_SOURCE_DIR_COREMLTOOLS=${SOURCE_PATH_COREMLTOOLS}")
+endif()
+
 vcpkg_find_acquire_program(PYTHON3)
 get_filename_component(PYTHON_PATH "${PYTHON3}" PATH)
 message(STATUS "Using python3: ${PYTHON3}")
@@ -104,6 +119,7 @@ vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}/cmake"
     OPTIONS
         ${FEATURE_OPTIONS}
+        ${ORT_FETCHCONTENT_OVERRIDES}
         "-DPython_EXECUTABLE:FILEPATH=${PYTHON3}"
         "-DProtobuf_PROTOC_EXECUTABLE:FILEPATH=${PROTOC}"
         "-DONNX_CUSTOM_PROTOC_EXECUTABLE:FILEPATH=${PROTOC}"

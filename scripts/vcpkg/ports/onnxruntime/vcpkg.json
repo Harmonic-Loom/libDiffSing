@@ -70,7 +70,10 @@
   "features": {
     "coreml": {
       "description": "Build with CoreML support",
-      "supports": "osx | ios"
+      "supports": "osx | ios",
+      "dependencies": [
+        "fp16"
+      ]
     },
     "directml": {
       "description": "Build with DirectML support",
