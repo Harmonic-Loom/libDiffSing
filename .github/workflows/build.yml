@@ -113,7 +113,7 @@ permissions:
 env:
   attestation: false
   ninja-version: '1.13.2'
-  emscripten-version: '3.1.62'
+  emscripten-version: '6.0.9'
   sha-length: 7
   USERNAME: Harmonic-Loom
   VCPKG_EXE: ${{github.workspace}}/vcpkg/vcpkg
