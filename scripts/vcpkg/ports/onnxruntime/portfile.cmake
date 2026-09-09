@@ -158,7 +158,7 @@ reolocate_ort_providers()
 vcpkg_copy_pdbs()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
-if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+if((VCPKG_LIBRARY_LINKAGE STREQUAL "static") AND (NOT VCPKG_TARGET_IS_EMSCRIPTEN))
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/bin" "${CURRENT_PACKAGES_DIR}/bin")
 endif()
 

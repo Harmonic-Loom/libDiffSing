@@ -23,7 +23,7 @@ index 15f3105b34..af6609b8ea 100644
 +            FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR})
  endif()
 diff --git a/cmake/onnxruntime_webassembly.cmake b/cmake/onnxruntime_webassembly.cmake
-index ffe866164a..e2707af7c7 100644
+index ffe866164a..7e72ca9220 100644
 --- a/cmake/onnxruntime_webassembly.cmake
 +++ b/cmake/onnxruntime_webassembly.cmake
 @@ -94,7 +94,7 @@ if (NOT onnxruntime_ENABLE_WEBASSEMBLY_THREADS)
@@ -35,6 +35,24 @@ index ffe866164a..e2707af7c7 100644
  endif()
  
  if (NOT onnxruntime_USE_VCPKG)
+@@ -245,7 +245,7 @@ else()
+     --no-entry
+     "SHELL:--pre-js \"${ONNXRUNTIME_ROOT}/wasm/pre.js\""
+   )
+-  
++
+   if (onnxruntime_USE_JSEP)
+     # NOTE: "-s ASYNCIFY=1" is required for JSEP to work with WebGPU
+     #       This flag allows async functions to be called from sync functions, in the cost of binary size and
+@@ -256,7 +256,7 @@ else()
+       "SHELL:--pre-js \"${ONNXRUNTIME_ROOT}/wasm/pre-jsep.js\""
+     )
+     list(APPEND onnxruntime_webassembly_script_deps "${ONNXRUNTIME_ROOT}/wasm/pre-jsep.js")
+-    
++
+   endif()
+ 
+   if (onnxruntime_USE_WEBGPU)
 @@ -401,17 +401,20 @@ else()
  
        const regex = 'new Worker\\\\(new URL\\\\(\".+?\", ?import\\\\.meta\\\\.url\\\\),';
@@ -62,3 +80,14 @@ index ffe866164a..e2707af7c7 100644
  
        fs.writeFileSync(mjsFilePath, contents);
      "
+@@ -431,4 +434,10 @@ else()
+       COMMAND ${NODE_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/wasm_post_build.js" "$<TARGET_FILE_NAME:onnxruntime_webassembly>"
+     )
+   endif()
++
++  # Install the generated .mjs (or .js) loader together with its side-by-side .wasm binary.
++  install(TARGETS onnxruntime_webassembly
++          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++  install(FILES "$<TARGET_FILE_DIR:onnxruntime_webassembly>/$<TARGET_FILE_BASE_NAME:onnxruntime_webassembly>.wasm"
++          DESTINATION ${CMAKE_INSTALL_BINDIR})
+ endif()

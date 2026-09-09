@@ -1,5 +1,5 @@
 diff --git a/cmake/onnxruntime_mlas.cmake b/cmake/onnxruntime_mlas.cmake
-index 3530ab03c8..c3292cb8a4 100644
+index 3530ab03c8..abff6577c8 100644
 --- a/cmake/onnxruntime_mlas.cmake
 +++ b/cmake/onnxruntime_mlas.cmake
 @@ -268,23 +268,14 @@ function(setup_mlas_source_for_windows)
@@ -28,3 +28,25 @@ index 3530ab03c8..c3292cb8a4 100644
  endfunction()
  
  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+@@ -437,7 +428,7 @@ else()
+         endif()
+         set_source_files_properties(${MLAS_SRC_DIR}/sqnbitgemm_kernel_neon_int8.cpp
+                                     PROPERTIES COMPILE_FLAGS " -march=armv8.2-a+dotprod")
+-        set_source_files_properties(${MLAS_SRC_DIR}/sqnbitgemm_kernel_neon_int8_i8mm.cpp 
++        set_source_files_properties(${MLAS_SRC_DIR}/sqnbitgemm_kernel_neon_int8_i8mm.cpp
+ 				    PROPERTIES COMPILE_FLAGS " -march=armv8.2-a+i8mm ")
+ 
+         if (NOT APPLE)
+@@ -852,6 +843,12 @@ if (NOT onnxruntime_ORT_MINIMAL_BUILD)
+     else()
+       set_target_properties(onnxruntime_mlas_q4dq PROPERTIES LINK_FLAGS "-s ALLOW_MEMORY_GROWTH=1")
+     endif()
++
++    # Install the generated .js loader together with its side-by-side .wasm binary.
++    install(TARGETS onnxruntime_mlas_q4dq
++            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++    install(FILES "$<TARGET_FILE_DIR:onnxruntime_mlas_q4dq>/$<TARGET_FILE_BASE_NAME:onnxruntime_mlas_q4dq>.wasm"
++            DESTINATION ${CMAKE_INSTALL_BINDIR})
+   endif()
+ 
+ endif()
