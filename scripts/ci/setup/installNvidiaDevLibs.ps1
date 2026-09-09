@@ -47,11 +47,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # Check platform once at the beginning
-$script:IsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
-$script:IsLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
+$script:PlatformIsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
+$script:PlatformIsLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
 
 function Assert-SupportedPlatform {
-	if (-not ($script:IsWindows -or $script:IsLinux)) {
+	if (-not ($script:PlatformIsWindows -or $script:PlatformIsLinux)) {
 		throw "仅支持 Windows 或 Linux，当前平台不受支持。"
 	}
 
@@ -81,7 +81,7 @@ function Invoke-DownloadFile {
 function Get-MicromambaExe {
 	param([Parameter(Mandatory)][string]$WorkDir)
 
-	$platform = if ($script:IsWindows) { 'win-64' } else { 'linux-64' }
+	$platform = if ($script:PlatformIsWindows) { 'win-64' } else { 'linux-64' }
 	$archive = Join-Path $WorkDir "micromamba-$platform.tar.bz2"
 	$extract = Join-Path $WorkDir 'micromamba'
 	$url = "https://micro.mamba.pm/api/micromamba/$platform/latest"
@@ -98,7 +98,7 @@ function Get-MicromambaExe {
 		throw "解压 micromamba 失败。"
 	}
 
-	$exe = if ($script:IsWindows) {
+	$exe = if ($script:PlatformIsWindows) {
 		Join-Path $extract 'Library/bin/micromamba.exe'
 	} else {
 		Join-Path $extract 'bin/micromamba'
@@ -122,13 +122,13 @@ function Install-TensorRT {
 	$versionParts = $Version -split '\.'
 	$versionPath = "$($versionParts[0]).$($versionParts[1]).$($versionParts[2])"
 
-	$platform = if ($script:IsWindows) { 'Windows.win10' } else { 'Linux.x86_64-gnu' }
+	$platform = if ($script:PlatformIsWindows) { 'Windows.win10' } else { 'Linux.x86_64-gnu' }
 	$archiveName = "TensorRT-$Version.$platform.cuda-12.8"
-	$archiveExt = if ($script:IsWindows) { 'zip' } else { 'tar.gz' }
+	$archiveExt = if ($script:PlatformIsWindows) { 'zip' } else { 'tar.gz' }
 	$archiveFile = "$archiveName.$archiveExt"
 	$archivePath = Join-Path $WorkDir $archiveFile
 
-	$url = if ($script:IsWindows) {
+	$url = if ($script:PlatformIsWindows) {
 		"https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/$versionPath/zip/$archiveFile"
 	} else {
 		"https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/$versionPath/tars/$archiveFile"
@@ -144,7 +144,7 @@ function Install-TensorRT {
 	New-Item -ItemType Directory -Path $extractPath | Out-Null
 
 	Write-Host ":: Extracting TensorRT"
-	if ($script:IsWindows) {
+	if ($script:PlatformIsWindows) {
 		Expand-Archive -Path $archivePath -DestinationPath $extractPath
 	} else {
 		& tar -xzf $archivePath -C $extractPath
@@ -159,7 +159,7 @@ function Install-TensorRT {
 	}
 
 	Write-Host ":: Installing TensorRT to $Prefix"
-	if ($script:IsWindows) {
+	if ($script:PlatformIsWindows) {
 		$srcBin = Join-Path $tensorrtRoot.FullName 'bin'
 		$srcLib = Join-Path $tensorrtRoot.FullName 'lib'
 		$srcInclude = Join-Path $tensorrtRoot.FullName 'include'
@@ -203,7 +203,7 @@ function Install-TensorRT {
 function Export-EnvForCurrentSession {
 	param([Parameter(Mandatory)][string]$Prefix)
 
-	if ($script:IsWindows) {
+	if ($script:PlatformIsWindows) {
 		$bin = Join-Path $Prefix 'Library/bin'
 		$lib = Join-Path $Prefix 'Library/lib'
 		$include = Join-Path $Prefix 'Library/include'
@@ -217,7 +217,7 @@ function Export-EnvForCurrentSession {
 	if (-not (Test-Path $lib)) { throw "未找到 lib 目录: $lib" }
 	if (-not (Test-Path $include)) { throw "未找到 include 目录: $include" }
 
-	if ($script:IsWindows) {
+	if ($script:PlatformIsWindows) {
 		$env:PATH = "$bin;$($env:PATH)"
 	} else {
 		$env:PATH = "${bin}:$($env:PATH)"
@@ -233,7 +233,7 @@ function Export-EnvForCurrentSession {
 		"CUDNN_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"TENSORRT_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-		if ($script:IsWindows) {
+		if ($script:PlatformIsWindows) {
 			"PATH=$bin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		} else {
 			"PATH=${bin}:$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
