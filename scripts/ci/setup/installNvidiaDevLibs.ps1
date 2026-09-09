@@ -227,11 +227,13 @@ function Export-EnvForCurrentSession {
 	$env:CUDA_PATH = $Prefix
 	$env:CUDNN_ROOT = $Prefix
 	$env:TENSORRT_ROOT = $Prefix
+	$env:TENSORRT_HOME = $Prefix
 
 	if ($env:GITHUB_ENV) {
 		"CUDA_PATH=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"CUDNN_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"TENSORRT_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"TENSORRT_HOME=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
 		if ($script:PlatformIsWindows) {
 			"PATH=$bin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
