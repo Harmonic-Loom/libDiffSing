@@ -112,6 +112,7 @@ permissions:
 
 env:
   attestation: false
+  cmake-version: '4.4.3'
   ninja-version: '1.13.2'
   emscripten-version: '6.0.9'
   sha-length: 7
@@ -217,11 +218,12 @@ jobs:
         submodules: recursive
         fetch-depth: 0
 
-    - name: Setup Ninja
-      uses: seanmiddleditch/gha-setup-ninja@master
+    - name: Setup compatible CMake
+      uses: lukka/get-cmake@v4
       with:
-        version: ${{env.ninja-version}}
-
+        cmakeVersion: ${{env.cmake-version}}
+        ninjaVersion: ${{env.ninja-version}}
+    
     - name: Install vcpkg Windows
       if: runner.os == 'Windows'
       working-directory: ${{github.workspace}}/vcpkg
@@ -336,10 +338,11 @@ jobs:
         fetch-depth: 0
         lfs: true
 
-    - name: Setup Ninja
-      uses: seanmiddleditch/gha-setup-ninja@master
+    - name: Setup compatible CMake
+      uses: lukka/get-cmake@v4
       with:
-        version: ${{env.ninja-version}}
+        cmakeVersion: ${{env.cmake-version}}
+        ninjaVersion: ${{env.ninja-version}}
 
     - name: Install vcpkg Windows
       if: runner.os == 'Windows'
