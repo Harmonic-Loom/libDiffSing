@@ -219,7 +219,7 @@ jobs:
         fetch-depth: 0
 
     - name: Setup compatible CMake
-      uses: lukka/get-cmake@v4
+      uses: lukka/get-cmake@latest
       with:
         cmakeVersion: ${{env.cmake-version}}
         ninjaVersion: ${{env.ninja-version}}
@@ -339,7 +339,7 @@ jobs:
         lfs: true
 
     - name: Setup compatible CMake
-      uses: lukka/get-cmake@v4
+      uses: lukka/get-cmake@latest
       with:
         cmakeVersion: ${{env.cmake-version}}
         ninjaVersion: ${{env.ninja-version}}
