@@ -91,8 +91,17 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
 
 if("cuda" IN_LIST FEATURES)
     vcpkg_find_cuda(OUT_CUDA_TOOLKIT_ROOT cuda_toolkit_root)
+
+    find_program(
+        CUDA_HOST_COMPILER
+        NAMES clang++
+        PATHS /usr/bin
+        REQUIRED
+    )
+
     list(APPEND FEATURE_OPTIONS
         "-DCMAKE_CUDA_COMPILER=${NVCC}"
+        "-DCMAKE_CUDA_HOST_COMPILER=${CUDA_HOST_COMPILER}"
         "-DCUDAToolkit_ROOT=${cuda_toolkit_root}"
         # "-DCMAKE_CUDA_ARCHITECTURES=native"
         # too much warnings about attribute
