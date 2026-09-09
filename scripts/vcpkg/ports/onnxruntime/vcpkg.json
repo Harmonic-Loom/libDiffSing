@@ -27,11 +27,11 @@
     {
       "name": "flatbuffers",
       "host": true,
-      "version": "23.5.26"
+      "version>=": "23.5.26"
     },
     {
       "name": "flatbuffers",
-      "version": "23.5.26"
+      "version>=": "23.5.26"
     },
     "ms-gsl",
     "nlohmann-json",
@@ -63,6 +63,12 @@
     {
       "name": "wil",
       "platform": "windows"
+    }
+  ],
+  "overrides": [
+    {
+      "name": "flatbuffers",
+      "version": "23.5.26"
     }
   ],
   "default-features": [
