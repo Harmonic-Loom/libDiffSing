@@ -18,6 +18,7 @@ vcpkg_from_github(
         fix-missing-cstdint.patch
         fix-cmake-mlas.patch
         fix-cmake-dml.patch
+        fix-cmake-coreml.patch
 )
 
 find_program(PROTOC NAMES protoc PATHS "${CURRENT_HOST_INSTALLED_DIR}/tools/protobuf" REQUIRED NO_DEFAULT_PATH NO_CMAKE_PATH)

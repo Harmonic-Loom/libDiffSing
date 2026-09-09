@@ -1,0 +1,13 @@
+diff --git a/cmake/onnxruntime_providers_coreml.cmake b/cmake/onnxruntime_providers_coreml.cmake
+index 757198ffb6..f5e45744ae 100644
+--- a/cmake/onnxruntime_providers_coreml.cmake
++++ b/cmake/onnxruntime_providers_coreml.cmake
+@@ -41,7 +41,7 @@ onnxruntime_protobuf_generate(
+ )
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+-  install(TARGETS coreml_proto
++  install(TARGETS coreml_proto EXPORT ${PROJECT_NAME}Targets
+           ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
