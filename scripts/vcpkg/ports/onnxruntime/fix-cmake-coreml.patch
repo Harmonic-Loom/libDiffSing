@@ -1,7 +1,16 @@
 diff --git a/cmake/onnxruntime_providers_coreml.cmake b/cmake/onnxruntime_providers_coreml.cmake
-index 757198ffb6..f5e45744ae 100644
+index 757198ffb6..a9ccc9c5b8 100644
 --- a/cmake/onnxruntime_providers_coreml.cmake
 +++ b/cmake/onnxruntime_providers_coreml.cmake
+@@ -26,7 +26,7 @@ file(GLOB coreml_proto_srcs "${COREML_PROTO_ROOT}/*.proto")
+ onnxruntime_add_static_library(coreml_proto ${coreml_proto_srcs})
+ target_include_directories(coreml_proto
+                            PUBLIC $<TARGET_PROPERTY:${PROTOBUF_LIB},INTERFACE_INCLUDE_DIRECTORIES>
+-                           "${CMAKE_CURRENT_BINARY_DIR}")
++                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
+ target_compile_definitions(coreml_proto
+                            PUBLIC $<TARGET_PROPERTY:${PROTOBUF_LIB},INTERFACE_COMPILE_DEFINITIONS>)
+ set_target_properties(coreml_proto PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
 @@ -41,7 +41,7 @@ onnxruntime_protobuf_generate(
  )
  
