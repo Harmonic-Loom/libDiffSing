@@ -1,0 +1,55 @@
+diff --git a/cmake/external/dml.cmake b/cmake/external/dml.cmake
+index 1a62695e1f..10883f8a38 100644
+--- a/cmake/external/dml.cmake
++++ b/cmake/external/dml.cmake
+@@ -21,6 +21,8 @@
+ set(onnxruntime_USE_CUSTOM_DIRECTML OFF CACHE BOOL "Depend on a custom/internal build of DirectML.")
+ set(dml_EXTERNAL_PROJECT OFF CACHE BOOL "Build DirectML as a source dependency.")
+ set(DML_SHARED_LIB DirectML.dll)
++# The Microsoft.AI.DirectML NuGet package uses lowercase platform folder names (e.g. arm64-win), unlike onnxruntime_target_platform (e.g. ARM64).
++string(TOLOWER "${onnxruntime_target_platform}" onnxruntime_target_platform_lower)
+ 
+ if (NOT onnxruntime_USE_CUSTOM_DIRECTML)
+   if (NOT(MSVC) OR NOT(WIN32))
+@@ -113,4 +115,4 @@ else()
+   FetchContent_Populate(directx_headers)
+   set(directx_headers_INCLUDE_DIRS  "${directx_headers_SOURCE_DIR}/include")
+   include_directories(BEFORE ${directx_headers_INCLUDE_DIRS})
+-endif()
+\ No newline at end of file
++endif()
+diff --git a/cmake/onnxruntime_providers_dml.cmake b/cmake/onnxruntime_providers_dml.cmake
+index ac4f0103ea..fe5a4c0420 100644
+--- a/cmake/onnxruntime_providers_dml.cmake
++++ b/cmake/onnxruntime_providers_dml.cmake
+@@ -29,7 +29,7 @@
+       add_custom_command(TARGET onnxruntime_providers_dml
+         POST_BUILD
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+-          "${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform}-win/${file}" $<TARGET_FILE_DIR:onnxruntime_providers_dml>)
++          "${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform_lower}-win/${file}" $<TARGET_FILE_DIR:onnxruntime_providers_dml>)
+     endforeach()
+   endif()
+ 
+@@ -47,7 +47,7 @@
+       endif()
+     else()
+       add_dependencies(${target} RESTORE_PACKAGES)
+-      target_link_libraries(${target} PRIVATE "${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform}-win/DirectML.lib")
++      target_link_libraries(${target} PRIVATE "${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform_lower}-win/DirectML.lib")
+         target_compile_definitions(${target} PRIVATE DML_TARGET_VERSION_USE_LATEST)
+     endif()
+   endfunction()
+diff --git a/cmake/onnxruntime_python.cmake b/cmake/onnxruntime_python.cmake
+index ae976abe62..cf525a4762 100644
+--- a/cmake/onnxruntime_python.cmake
++++ b/cmake/onnxruntime_python.cmake
+@@ -1036,7 +1036,7 @@ endif()
+ 
+ if (onnxruntime_USE_DML)
+   if (NOT onnxruntime_USE_CUSTOM_DIRECTML)
+-    set(dml_shared_lib_path ${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform}-win/${DML_SHARED_LIB})
++    set(dml_shared_lib_path ${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform_lower}-win/${DML_SHARED_LIB})
+   else()
+     set(dml_shared_lib_path ${DML_PACKAGE_DIR}/bin/${DML_SHARED_LIB})
+   endif()
