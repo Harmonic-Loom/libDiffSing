@@ -112,7 +112,7 @@ permissions:
 
 env:
   attestation: false
-  cmake-version: '4.4.3'
+  cmake-version: 'latestrc'
   ninja-version: '1.13.2'
   emscripten-version: '6.0.9'
   sha-length: 7
@@ -218,7 +218,7 @@ jobs:
         submodules: recursive
         fetch-depth: 0
 
-    - name: Setup compatible CMake
+    - name: Setup CMake
       uses: lukka/get-cmake@latest
       with:
         cmakeVersion: ${{env.cmake-version}}
@@ -338,7 +338,7 @@ jobs:
         fetch-depth: 0
         lfs: true
 
-    - name: Setup compatible CMake
+    - name: Setup CMake
       uses: lukka/get-cmake@latest
       with:
         cmakeVersion: ${{env.cmake-version}}
