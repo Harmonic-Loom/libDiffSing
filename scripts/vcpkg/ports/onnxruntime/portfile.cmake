@@ -19,6 +19,7 @@ vcpkg_from_github(
         fix-cmake-mlas.patch
         fix-cmake-dml.patch
         fix-cmake-coreml.patch
+        fix-cuda-template.patch
 )
 
 find_program(PROTOC NAMES protoc PATHS "${CURRENT_HOST_INSTALLED_DIR}/tools/protobuf" REQUIRED NO_DEFAULT_PATH NO_CMAKE_PATH)
