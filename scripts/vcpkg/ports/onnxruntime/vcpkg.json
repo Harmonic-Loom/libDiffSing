@@ -65,12 +65,6 @@
       "platform": "windows"
     }
   ],
-  "overrides": [
-    {
-      "name": "flatbuffers",
-      "version": "23.5.26"
-    }
-  ],
   "default-features": [
   ],
   "features": {
