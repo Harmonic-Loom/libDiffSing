@@ -278,6 +278,11 @@ jobs:
       shell: pwsh
       run: ./scripts/ci/setup/installNvidiaDevLibs.ps1 -InstallPrefix "${{runner.temp}}/nvidia-dev" -Force
 
+    - name: Verify NVIDIA Dev Libraries
+      if: (matrix.target-os == 'Windows' || matrix.target-os == 'Linux') && matrix.arch == 'x64'
+      shell: pwsh
+      run: ./scripts/ci/setup/verifyNvidiaDevLibs.ps1 -InstallPrefix "${{runner.temp}}/nvidia-dev"
+
     - name: Setup Emscripten
       if: matrix.target-os == 'Emscripten'
       uses: emscripten-core/setup-emsdk@v15
@@ -397,6 +402,11 @@ jobs:
       if: (matrix.target-os == 'Windows' || matrix.target-os == 'Linux') && matrix.arch == 'x64'
       shell: pwsh
       run: ./scripts/ci/setup/installNvidiaDevLibs.ps1 -InstallPrefix "${{runner.temp}}/nvidia-dev" -Force
+
+    - name: Verify NVIDIA Dev Libraries
+      if: (matrix.target-os == 'Windows' || matrix.target-os == 'Linux') && matrix.arch == 'x64'
+      shell: pwsh
+      run: ./scripts/ci/setup/verifyNvidiaDevLibs.ps1 -InstallPrefix "${{runner.temp}}/nvidia-dev"
 
     - name: Initialize MSVC Environment
       if: matrix.target-os == 'Windows'

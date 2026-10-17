@@ -17,6 +17,9 @@
 .PARAMETER CudaSpec
 	CUDA 包版本约束，默认 12.8.*。
 
+.PARAMETER CudaCompilerSpec
+	CUDA 编译器包版本约束，默认 12.8.*。
+
 .PARAMETER CudnnSpec
 	cuDNN 包版本约束，默认 >=9,<10。
 
@@ -38,6 +41,7 @@
 param(
 	[string]$InstallPrefix = $(if ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) { 'C:/nvidia/dev' } else { '/opt/nvidia/dev' }),
 	[string]$CudaSpec = 'cuda-toolkit=12.8.*',
+	[string]$CudaCompilerSpec = 'cuda-nvcc=12.8.*',
 	[string]$CudnnSpec = 'cudnn>=9,<10',
 	[string]$TensorRtVersion = '10.9.0.34',
 	[switch]$Force
@@ -217,33 +221,85 @@ function Export-EnvForCurrentSession {
 	if (-not (Test-Path $lib)) { throw "未找到 lib 目录: $lib" }
 	if (-not (Test-Path $include)) { throw "未找到 include 目录: $include" }
 
-	if ($script:PlatformIsWindows) {
-		$env:PATH = "$bin;$($env:PATH)"
+	$nvccCandidates = if ($script:PlatformIsWindows) {
+		@(
+			(Join-Path $Prefix 'Library/bin/nvcc.exe'),
+			(Join-Path $Prefix 'bin/nvcc.exe')
+		)
 	} else {
-		$env:PATH = "${bin}:$($env:PATH)"
+		@(
+			(Join-Path $Prefix 'bin/nvcc'),
+			(Join-Path $Prefix 'Library/bin/nvcc')
+		)
+	}
+
+	$nvcc = $nvccCandidates |
+		Where-Object { Test-Path $_ -PathType Leaf } |
+		Select-Object -First 1
+	if (-not $nvcc) {
+		throw "CUDA 已安装，但未找到 nvcc 编译器。已检查: $($nvccCandidates -join ', ')"
+	}
+
+	$requiredHeaders = @(
+		(Join-Path $include 'cuda.h'),
+		(Join-Path $include 'cudnn.h'),
+		(Join-Path $include 'NvInfer.h')
+	)
+	foreach ($header in $requiredHeaders) {
+		if (-not (Test-Path $header -PathType Leaf)) {
+			throw "未找到 NVIDIA 开发头文件: $header"
+		}
+	}
+
+	$libraryPatterns = if ($script:PlatformIsWindows) {
+		@('cudnn.lib', 'nvinfer.lib')
+	} else {
+		@('libcudnn.so*', 'libnvinfer.so*')
+	}
+	foreach ($pattern in $libraryPatterns) {
+		$library = Get-ChildItem -Path $lib -File -Filter $pattern -ErrorAction SilentlyContinue | Select-Object -First 1
+		if (-not $library) {
+			throw "未找到 NVIDIA 运行库 ${pattern}: $lib"
+		}
+	}
+
+	$nvccDir = Split-Path -Parent $nvcc
+	if ($script:PlatformIsWindows) {
+		$env:PATH = "$nvccDir;$($env:PATH)"
+	} else {
+		$env:PATH = "${nvccDir}:$($env:PATH)"
 		$env:LD_LIBRARY_PATH = "${lib}:$($env:LD_LIBRARY_PATH)"
 	}
 
 	$env:CUDA_PATH = $Prefix
+	$env:CUDACXX = $nvcc
 	$env:CUDNN_ROOT = $Prefix
 	$env:TENSORRT_ROOT = $Prefix
 	$env:TENSORRT_HOME = $Prefix
 
 	if ($env:GITHUB_ENV) {
 		"CUDA_PATH=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"CUDACXX=$nvcc" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"CUDNN_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"TENSORRT_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"TENSORRT_HOME=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
 		if ($script:PlatformIsWindows) {
-			"PATH=$bin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+			"PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		} else {
-			"PATH=${bin}:$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+			"PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 			"LD_LIBRARY_PATH=${lib}:$env:LD_LIBRARY_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		}
 
 		Write-Host ':: 环境变量已写入 GITHUB_ENV'
 	}
+
+	Write-Host ":: CUDA compiler: $nvcc"
+	& $nvcc --version
+	if ($LASTEXITCODE -ne 0) {
+		throw "nvcc 无法执行: $nvcc"
+	}
+	Write-Host ":: CUDA/cuDNN/TensorRT headers and libraries validated"
 }
 
 Assert-SupportedPlatform
@@ -263,7 +319,7 @@ if (-not (Test-Path $tempRoot)) {
 $micromamba = Get-MicromambaExe -WorkDir $tempRoot
 
 Write-Host ":: Installing CUDA and cuDNN to $prefix"
-& $micromamba create --yes --prefix $prefix -c nvidia -c conda-forge $CudaSpec $CudnnSpec
+& $micromamba create --yes --prefix $prefix -c nvidia -c conda-forge $CudaSpec $CudaCompilerSpec $CudnnSpec
 if ($LASTEXITCODE -ne 0) {
 	throw "micromamba create 失败，退出码: $LASTEXITCODE"
 }
@@ -274,5 +330,5 @@ Install-TensorRT -Version $TensorRtVersion -Prefix $prefix -WorkDir $tempRoot
 Export-EnvForCurrentSession -Prefix $prefix
 
 Write-Host ':: CUDA/cuDNN/TensorRT 开发库安装完成。'
-& $micromamba list --prefix $prefix | Select-String -Pattern 'cuda-toolkit|cudnn' | ForEach-Object { Write-Host $_ }
+& $micromamba list --prefix $prefix | Select-String -Pattern 'cuda-toolkit|cuda-nvcc|cudnn' | ForEach-Object { Write-Host $_ }
 Write-Host ":: TensorRT version: $TensorRtVersion"
