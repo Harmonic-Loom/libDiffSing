@@ -26,7 +26,7 @@ if ($platformIsWindows) {
 		(Join-Path $prefix 'Library/bin/nvcc.exe'),
 		(Join-Path $prefix 'bin/nvcc.exe')
 	)
-	$libraryPatterns = @('cudnn.lib', 'nvinfer.lib')
+	$libraryPatterns = @('cudnn.lib', 'nvinfer*.lib')
 } else {
 	$bin = Join-Path $prefix 'bin'
 	$lib = Join-Path $prefix 'lib'

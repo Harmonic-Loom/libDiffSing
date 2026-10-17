@@ -252,7 +252,7 @@ function Export-EnvForCurrentSession {
 	}
 
 	$libraryPatterns = if ($script:PlatformIsWindows) {
-		@('cudnn.lib', 'nvinfer.lib')
+		@('cudnn.lib', 'nvinfer*.lib')
 	} else {
 		@('libcudnn.so*', 'libnvinfer.so*')
 	}
