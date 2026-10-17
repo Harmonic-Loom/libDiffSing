@@ -264,6 +264,7 @@ function Export-EnvForCurrentSession {
 	}
 
 	$nvccDir = Split-Path -Parent $nvcc
+	$cudaRoot = Split-Path -Parent $nvccDir
 	if ($script:PlatformIsWindows) {
 		$env:PATH = "$nvccDir;$($env:PATH)"
 	} else {
@@ -271,15 +272,25 @@ function Export-EnvForCurrentSession {
 		$env:LD_LIBRARY_PATH = "${lib}:$($env:LD_LIBRARY_PATH)"
 	}
 
-	$env:CUDA_PATH = $Prefix
+	$env:CUDA_PATH = $cudaRoot
+	$env:CUDA_HOME = $cudaRoot
+	$env:CUDA_BIN_PATH = $nvccDir
+	$env:CUDA_TOOLKIT_ROOT_DIR = $cudaRoot
+	$env:CUDAToolkit_ROOT = $cudaRoot
 	$env:CUDACXX = $nvcc
+	$env:CMAKE_CUDA_COMPILER = $nvcc
 	$env:CUDNN_ROOT = $Prefix
 	$env:TENSORRT_ROOT = $Prefix
 	$env:TENSORRT_HOME = $Prefix
 
 	if ($env:GITHUB_ENV) {
-		"CUDA_PATH=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"CUDA_PATH=$cudaRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"CUDA_HOME=$cudaRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"CUDA_BIN_PATH=$nvccDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"CUDA_TOOLKIT_ROOT_DIR=$cudaRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"CUDAToolkit_ROOT=$cudaRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"CUDACXX=$nvcc" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+		"CMAKE_CUDA_COMPILER=$nvcc" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"CUDNN_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"TENSORRT_ROOT=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 		"TENSORRT_HOME=$Prefix" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append

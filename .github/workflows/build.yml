@@ -283,6 +283,31 @@ jobs:
       shell: pwsh
       run: ./scripts/ci/setup/verifyNvidiaDevLibs.ps1 -InstallPrefix "${{runner.temp}}/nvidia-dev"
 
+    - name: Diagnose CUDA environment
+      if: (matrix.target-os == 'Windows' || matrix.target-os == 'Linux') && matrix.arch == 'x64'
+      shell: pwsh
+      run: |
+        Write-Host "CUDA_PATH=$env:CUDA_PATH"
+        Write-Host "CUDA_TOOLKIT_ROOT_DIR=$env:CUDA_TOOLKIT_ROOT_DIR"
+        Write-Host "CUDAToolkit_ROOT=$env:CUDAToolkit_ROOT"
+        Write-Host "CUDA_BIN_PATH=$env:CUDA_BIN_PATH"
+        Write-Host "CUDACXX=$env:CUDACXX"
+        Write-Host "CMAKE_CUDA_COMPILER=$env:CMAKE_CUDA_COMPILER"
+        Get-Command nvcc -ErrorAction Stop | Format-List Name,Source
+        if ($IsWindows) {
+          where.exe nvcc
+          if ($LASTEXITCODE -ne 0) {
+            throw "where.exe 未找到 PATH 中的 nvcc"
+          }
+        }
+        if (-not (Test-Path $env:CMAKE_CUDA_COMPILER -PathType Leaf)) {
+          throw "CMAKE_CUDA_COMPILER 不存在: $env:CMAKE_CUDA_COMPILER"
+        }
+        & $env:CMAKE_CUDA_COMPILER --version
+        if ($LASTEXITCODE -ne 0) {
+          throw "CMAKE_CUDA_COMPILER 无法执行: $env:CMAKE_CUDA_COMPILER"
+        }
+
     - name: Setup Emscripten
       if: matrix.target-os == 'Emscripten'
       uses: emscripten-core/setup-emsdk@v15
@@ -407,6 +432,31 @@ jobs:
       if: (matrix.target-os == 'Windows' || matrix.target-os == 'Linux') && matrix.arch == 'x64'
       shell: pwsh
       run: ./scripts/ci/setup/verifyNvidiaDevLibs.ps1 -InstallPrefix "${{runner.temp}}/nvidia-dev"
+
+    - name: Diagnose CUDA environment
+      if: (matrix.target-os == 'Windows' || matrix.target-os == 'Linux') && matrix.arch == 'x64'
+      shell: pwsh
+      run: |
+        Write-Host "CUDA_PATH=$env:CUDA_PATH"
+        Write-Host "CUDA_TOOLKIT_ROOT_DIR=$env:CUDA_TOOLKIT_ROOT_DIR"
+        Write-Host "CUDAToolkit_ROOT=$env:CUDAToolkit_ROOT"
+        Write-Host "CUDA_BIN_PATH=$env:CUDA_BIN_PATH"
+        Write-Host "CUDACXX=$env:CUDACXX"
+        Write-Host "CMAKE_CUDA_COMPILER=$env:CMAKE_CUDA_COMPILER"
+        Get-Command nvcc -ErrorAction Stop | Format-List Name,Source
+        if ($IsWindows) {
+          where.exe nvcc
+          if ($LASTEXITCODE -ne 0) {
+            throw "where.exe 未找到 PATH 中的 nvcc"
+          }
+        }
+        if (-not (Test-Path $env:CMAKE_CUDA_COMPILER -PathType Leaf)) {
+          throw "CMAKE_CUDA_COMPILER 不存在: $env:CMAKE_CUDA_COMPILER"
+        }
+        & $env:CMAKE_CUDA_COMPILER --version
+        if ($LASTEXITCODE -ne 0) {
+          throw "CMAKE_CUDA_COMPILER 无法执行: $env:CMAKE_CUDA_COMPILER"
+        }
 
     - name: Initialize MSVC Environment
       if: matrix.target-os == 'Windows'
