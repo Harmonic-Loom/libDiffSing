@@ -59,8 +59,22 @@ function Assert-SupportedPlatform {
 		throw "仅支持 Windows 或 Linux，当前平台不受支持。"
 	}
 
-	if ([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture -ne [System.Runtime.InteropServices.Architecture]::X64) {
-		throw "仅支持 x64，当前架构: $([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture)"
+	$architectureProperty = [System.Runtime.InteropServices.RuntimeInformation].GetProperty('ProcessArchitecture')
+	if ($architectureProperty) {
+		$processArchitecture = $architectureProperty.GetValue($null).ToString()
+	} elseif ($script:PlatformIsWindows) {
+		$processArchitecture = [Environment]::GetEnvironmentVariable('PROCESSOR_ARCHITECTURE')
+		if ($processArchitecture -eq 'AMD64') {
+			$processArchitecture = 'X64'
+		}
+	} elseif ([Environment]::Is64BitProcess) {
+		$processArchitecture = 'X64'
+	} else {
+		$processArchitecture = 'X86'
+	}
+
+	if ($processArchitecture -ne 'X64') {
+		throw "仅支持 x64，当前架构: $processArchitecture"
 	}
 }
 
